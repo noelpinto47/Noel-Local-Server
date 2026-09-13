@@ -1,3 +1,7 @@
+const savedTheme = localStorage.getItem("ai-mind-theme") || "dark"; document.body.classList.toggle("light", savedTheme === "light");
+const themeToggle = document.getElementById("theme-toggle");
+function updateThemeToggle() { const light = document.body.classList.contains("light"); themeToggle.textContent = light ? "☾" : "☼"; themeToggle.title = light ? "Switch to dark mode" : "Switch to light mode"; themeToggle.setAttribute("aria-label", themeToggle.title) }
+themeToggle.addEventListener("click", () => { const light = !document.body.classList.contains("light"); document.body.classList.toggle("light", light); localStorage.setItem("ai-mind-theme", light ? "light" : "dark"); updateThemeToggle() }); updateThemeToggle();
 const messages = []; let conversationId = localStorage.getItem("conversation_id"); let isSending = false;
 const chat = document.getElementById("chat"), messagesContainer = document.getElementById("messages"), welcome = document.getElementById("welcome"), form = document.getElementById("chat-form"), input = document.getElementById("message-input"), sendButton = document.getElementById("send-button"), newChatButton = document.getElementById("new-chat"), chatTitle = document.getElementById("chat-title");
 marked.setOptions({ gfm: true, breaks: true });

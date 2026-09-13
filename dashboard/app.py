@@ -20,7 +20,7 @@ app = Flask(__name__)
 # Change this after measuring your actual server consumption.
 POWER_WATTS = 30.0
 
-# Electricity price in €/kWh.
+# Electricity price in EUR/kWh.
 ELECTRICITY_PRICE = 0.258
 
 
@@ -48,16 +48,9 @@ lock = threading.Lock()
 def get_uptime():
 
     uptime_seconds = time.time() - psutil.boot_time()
-
     days = int(uptime_seconds // 86400)
-
-    hours = int(
-        (uptime_seconds % 86400) // 3600
-    )
-
-    minutes = int(
-        (uptime_seconds % 3600) // 60
-    )
+    hours = int((uptime_seconds % 86400) // 3600)
+    minutes = int((uptime_seconds % 3600) // 60)
 
     return f"{days}d {hours}h {minutes}m"
 
@@ -65,49 +58,22 @@ def get_uptime():
 def get_system():
 
     memory = psutil.virtual_memory()
-
     disk = psutil.disk_usage("C:\\")
 
     return {
         "hostname": socket.gethostname(),
-
         "os": platform.platform(),
-
-        "cpu": psutil.cpu_percent(
-            interval=None
-        ),
-
+        "cpu": psutil.cpu_percent(interval=None),
         "memory": memory.percent,
-
-        "memory_used_gb": round(
-            memory.used / (1024 ** 3),
-            2
-        ),
-
-        "memory_total_gb": round(
-            memory.total / (1024 ** 3),
-            2
-        ),
-
+        "memory_used_gb": round(memory.used / (1024 ** 3), 2),
+        "memory_total_gb": round(memory.total / (1024 ** 3), 2),
         "disk": disk.percent,
-
-        "disk_used_gb": round(
-            disk.used / (1024 ** 3),
-            2
-        ),
-
-        "disk_total_gb": round(
-            disk.total / (1024 ** 3),
-            2
-        ),
-
+        "disk_used_gb": round(disk.used / (1024 ** 3), 2),
+        "disk_total_gb": round(disk.total / (1024 ** 3), 2),
         "uptime": get_uptime(),
-
         "boot_time": time.strftime(
             "%Y-%m-%d %H:%M:%S",
-            time.localtime(
-                psutil.boot_time()
-            )
+            time.localtime(psutil.boot_time())
         )
     }
 
@@ -420,166 +386,6 @@ def get_power():
 
 
 # ============================================================
-# COLLECTORS
-# ============================================================
-
-def system_collector():
-
-    while True:
-
-        try:
-
-            result = get_system()
-
-
-            with lock:
-
-                data["system"] = result
-
-                # This timestamp represents the moment
-                # the monitoring data was successfully updated.
-                data["last_updated"] = (
-                    datetime.now()
-                    .astimezone()
-                    .isoformat()
-                )
-
-
-        except Exception:
-
-            pass
-
-
-        time.sleep(2)
-
-
-# ------------------------------------------------------------
-
-def process_collector():
-
-    while True:
-
-        try:
-
-            result = get_processes()
-
-
-            with lock:
-
-                data["processes"] = result
-
-
-        except Exception:
-
-            pass
-
-
-        time.sleep(5)
-
-
-# ------------------------------------------------------------
-
-def disk_collector():
-
-    while True:
-
-        try:
-
-            result = get_disk_temperatures()
-
-
-            with lock:
-
-                data["disks"] = result
-
-
-        except Exception:
-
-            pass
-
-
-        time.sleep(60)
-
-
-# ------------------------------------------------------------
-
-def tailscale_collector():
-
-    while True:
-
-        try:
-
-            result = get_tailscale()
-
-
-            with lock:
-
-                data["tailscale"] = result
-
-
-        except Exception:
-
-            pass
-
-
-        time.sleep(30)
-
-
-# ------------------------------------------------------------
-
-def power_collector():
-
-    while True:
-
-        try:
-
-            result = get_power()
-
-
-            with lock:
-
-                data["power"] = result
-
-
-        except Exception:
-
-            pass
-
-
-        time.sleep(30)
-
-# ------------------------------------------------------------
-
-def ai_collector():
-
-    while True:
-
-        try:
-
-            result = subprocess.run(
-                [
-                    "curl",
-                    "-s",
-                    "http://127.0.0.1:8081/api/ai-status"
-                ],
-                capture_output=True,
-                text=True,
-                timeout=5
-            )
-
-            if result.returncode == 0 and result.stdout.strip():
-
-                ai_status = json.loads(result.stdout)
-
-                with lock:
-                    data["ai"] = ai_status
-
-        except Exception:
-            pass
-
-        time.sleep(5)
-
-# ============================================================
 # API
 # ============================================================
 
@@ -594,59 +400,36 @@ def dashboard():
 @app.route("/api/system")
 def system_api():
 
-    with lock:
+    snapshot = {
+        "system": get_system(),
+        "processes": get_processes(),
+        "disks": get_disk_temperatures(),
+        "tailscale": get_tailscale(),
+        "power": get_power(),
+        "ai": {},
+        "last_updated": datetime.now().astimezone().isoformat()
+    }
 
-        return jsonify({
-
-            "system":
-                data["system"],
-
-            "processes":
-                data["processes"],
-
-            "disks":
-                data["disks"],
-
-            "tailscale":
-                data["tailscale"],
-
-            "power":
-                data["power"],
-
-            "ai":
-                data["ai"],
-
-            "last_updated":
-                data["last_updated"]
-        })
-
-
-# ============================================================
-# START COLLECTORS
-# ============================================================
-
-def start_collectors():
-
-    collectors = [
-       system_collector,
-       process_collector,
-       disk_collector,
-       tailscale_collector,
-       power_collector,
-       ai_collector
-    ]
-
-
-    for collector in collectors:
-
-        thread = threading.Thread(
-
-            target=collector,
-
-            daemon=True
+    try:
+        result = subprocess.run(
+            [
+                "curl",
+                "-s",
+                "http://127.0.0.1:8081/api/ai-status"
+            ],
+            capture_output=True,
+            text=True,
+            timeout=5
         )
 
-        thread.start()
+        if result.returncode == 0 and result.stdout.strip():
+            snapshot["ai"] = json.loads(result.stdout)
+    except Exception:
+        pass
+
+    with lock:
+        data.update(snapshot)
+        return jsonify(snapshot)
 
 
 # ============================================================
@@ -654,10 +437,6 @@ def start_collectors():
 # ============================================================
 
 if __name__ == "__main__":
-
-    start_collectors()
-
-
     app.run(
 
         host="0.0.0.0",

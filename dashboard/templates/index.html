@@ -280,6 +280,257 @@ h1 {
 
 </style>
 
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+:root {
+    --dashboard-bg: #f5f7f4;
+    --dashboard-sidebar: #eaf0eb;
+    --dashboard-surface: rgba(255, 255, 255, .88);
+    --dashboard-border: #d6e1d8;
+    --dashboard-text: #1e2a22;
+    --dashboard-muted: #64746a;
+    --dashboard-muted-2: #829087;
+    --dashboard-accent: #2e8b57;
+    --dashboard-accent-soft: #dff0e3;
+    --dashboard-shadow: 0 10px 30px rgba(40, 75, 52, .1);
+    --dashboard-forest: url("https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=2200&q=85");
+}
+
+html {
+    min-height: 100%;
+    background: var(--dashboard-bg);
+}
+
+body {
+    min-height: 100%;
+    background:
+        radial-gradient(circle at 78% -12%, rgba(127, 214, 157, .2), transparent 34%),
+        var(--dashboard-bg);
+    color: var(--dashboard-text);
+    font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+body.dark {
+    --dashboard-bg: #0d1711;
+    --dashboard-surface: rgba(15, 27, 19, .86);
+    --dashboard-border: rgba(167, 219, 180, .24);
+    --dashboard-text: #edf7ef;
+    --dashboard-muted: #b0c5b5;
+    --dashboard-muted-2: #8da995;
+    --dashboard-accent: #a8e5bd;
+    --dashboard-accent-soft: rgba(44, 93, 60, .75);
+    --dashboard-shadow: 0 14px 36px rgba(0, 0, 0, .3);
+    background:
+        linear-gradient(rgba(5, 15, 8, .58), rgba(5, 15, 8, .72)),
+        var(--dashboard-forest) center / cover fixed,
+        var(--dashboard-bg);
+}
+
+.container {
+    max-width: 1120px;
+    padding: 42px 30px 58px;
+}
+
+header {
+    align-items: flex-end;
+    margin-bottom: 34px;
+}
+
+h1 {
+    margin: 0;
+    color: var(--dashboard-text);
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 32px;
+    font-weight: 600;
+    letter-spacing: -.04em;
+}
+
+.subtitle,
+.label,
+.unit,
+.cost-label {
+    color: var(--dashboard-muted);
+}
+
+.subtitle {
+    margin-top: 7px;
+    font-size: 13px;
+}
+
+.status {
+    color: var(--dashboard-accent);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.header-actions {
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.service-button {
+    padding: 10px 14px;
+    border: 1px solid #a9cdb0;
+    border-radius: 10px;
+    background: var(--dashboard-accent-soft);
+    color: #285536;
+    font-size: 13px;
+    font-weight: 600;
+    transition: background .18s, border-color .18s, transform .18s;
+}
+
+.service-button:hover {
+    border-color: #82b88e;
+    background: #cfe8d4;
+    transform: translateY(-1px);
+}
+
+.theme-toggle {
+    width: 38px;
+    height: 38px;
+    display: inline-grid;
+    place-items: center;
+    padding: 0;
+    border: 1px solid #a9cdb0;
+    border-radius: 10px;
+    background: var(--dashboard-accent-soft);
+    color: #285536;
+    cursor: pointer;
+    font-size: 18px;
+    transition: background .18s, border-color .18s, transform .18s;
+}
+
+.theme-toggle:hover {
+    border-color: #82b88e;
+    background: #cfe8d4;
+    transform: translateY(-1px);
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    background: #3aa463;
+    box-shadow: 0 0 0 4px rgba(58, 164, 99, .12);
+}
+
+.grid {
+    gap: 14px;
+}
+
+.card {
+    border: 1px solid var(--dashboard-border);
+    border-radius: 14px;
+    background: var(--dashboard-surface);
+    box-shadow: var(--dashboard-shadow);
+}
+
+.grid > .card {
+    min-height: 138px;
+}
+
+.card-title,
+.process-header {
+    color: var(--dashboard-muted-2);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .1em;
+}
+
+.value {
+    color: var(--dashboard-text);
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 30px;
+    font-weight: 600;
+    letter-spacing: -.03em;
+}
+
+.section {
+    margin-top: 28px;
+}
+
+.section-title {
+    margin-bottom: 12px;
+    color: var(--dashboard-text);
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -.02em;
+}
+
+.row,
+.process {
+    border-bottom-color: var(--dashboard-border);
+    font-size: 14px;
+}
+
+.row:last-child,
+.process:last-child {
+    border-bottom: 0;
+}
+
+.power-cost {
+    gap: 10px;
+}
+
+.cost {
+    border: 1px solid #e0e9e1;
+    background: #f0f5f1;
+}
+
+body.dark .service-button,
+body.dark .theme-toggle {
+    border-color: rgba(168, 229, 189, .35);
+    background: rgba(24, 54, 34, .82);
+    color: #d9f5df;
+}
+
+body.dark .service-button:hover,
+body.dark .theme-toggle:hover {
+    border-color: rgba(168, 229, 189, .65);
+    background: rgba(39, 82, 51, .9);
+}
+
+body.dark .card {
+    background: var(--dashboard-surface);
+}
+
+body.dark .cost {
+    border-color: rgba(167, 219, 180, .18);
+    background: rgba(10, 25, 14, .72);
+}
+
+.cost-value {
+    color: var(--dashboard-text);
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 22px;
+    font-weight: 600;
+}
+
+#disk-temperatures,
+#process-list {
+    color: var(--dashboard-text);
+}
+
+@media(max-width: 760px) {
+    .container {
+        padding: 28px 18px 42px;
+    }
+
+    header {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 22px;
+    }
+
+    .header-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}
+</style>
+
 </head>
 
 
@@ -308,6 +559,16 @@ h1 {
 
 
 <div class="header-actions">
+
+    <button
+        id="theme-toggle"
+        class="theme-toggle"
+        type="button"
+        title="Switch to dark mode"
+        aria-label="Switch to dark mode"
+    >
+        ☾
+    </button>
 
     <a
         class="service-button"
@@ -787,6 +1048,27 @@ Boot time
 
 <script>
 
+const savedTheme = localStorage.getItem("dashboard-theme") || "light";
+const themeToggle = document.getElementById("theme-toggle");
+
+document.body.classList.toggle("dark", savedTheme === "dark");
+
+function updateThemeToggle() {
+    const dark = document.body.classList.contains("dark");
+    themeToggle.textContent = dark ? "☀" : "☾";
+    themeToggle.title = dark ? "Switch to light mode" : "Switch to dark mode";
+    themeToggle.setAttribute("aria-label", themeToggle.title);
+}
+
+themeToggle.addEventListener("click", () => {
+    const dark = !document.body.classList.contains("dark");
+    document.body.classList.toggle("dark", dark);
+    localStorage.setItem("dashboard-theme", dark ? "dark" : "light");
+    updateThemeToggle();
+});
+
+updateThemeToggle();
+
 
 async function updateDashboard() {
 
@@ -1096,13 +1378,6 @@ aiLastChecked.textContent =
 
 updateDashboard();
 
-
-// Refresh every 5 seconds
-
-setInterval(
-    updateDashboard,
-    5000
-);
 
 </script>
 

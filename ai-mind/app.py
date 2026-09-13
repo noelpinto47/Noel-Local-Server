@@ -11,6 +11,10 @@ from database import (
     create_conversation,
     add_message,
     get_messages,
+    get_conversation,
+    list_conversations,
+    rename_conversation,
+    delete_conversation,
     add_memory,
     get_memories,
     add_ignored_memory,
@@ -343,6 +347,10 @@ def chat():
     # Create a conversation if one doesn't exist
     if not conversation_id:
         conversation_id = create_conversation()
+    elif not get_conversation(conversation_id):
+        return jsonify({
+            "error": "Conversation not found"
+        }), 404
 
     try:
         # Save user's message
@@ -451,11 +459,68 @@ Do not invent additional facts about the user.
 
 @app.route("/api/conversation/<int:conversation_id>", methods=["GET"])
 def conversation(conversation_id):
+    conversation_data = get_conversation(conversation_id)
+
+    if not conversation_data:
+        return jsonify({
+            "error": "Conversation not found"
+        }), 404
+
     messages = get_messages(conversation_id)
 
     return jsonify({
         "conversation_id": conversation_id,
+        "title": conversation_data["title"],
+        "created_at": conversation_data["created_at"],
+        "updated_at": conversation_data["updated_at"],
         "messages": messages
+    })
+
+
+@app.route("/api/conversations", methods=["GET"])
+def conversations():
+    search = request.args.get("search", "")
+
+    return jsonify({
+        "conversations": list_conversations(search=search)
+    })
+
+
+@app.route("/api/conversations/<int:conversation_id>", methods=["PATCH"])
+def rename_conversation_route(conversation_id):
+    data = request.get_json() or {}
+    title = " ".join(str(data.get("title", "")).split()).strip()
+
+    if not title:
+        return jsonify({
+            "error": "Conversation title cannot be empty"
+        }), 400
+
+    if len(title) > 80:
+        return jsonify({
+            "error": "Conversation title cannot exceed 80 characters"
+        }), 400
+
+    if not rename_conversation(conversation_id, title):
+        return jsonify({
+            "error": "Conversation not found"
+        }), 404
+
+    return jsonify({
+        "conversation": get_conversation(conversation_id)
+    })
+
+
+@app.route("/api/conversations/<int:conversation_id>", methods=["DELETE"])
+def delete_conversation_route(conversation_id):
+    if not delete_conversation(conversation_id):
+        return jsonify({
+            "error": "Conversation not found"
+        }), 404
+
+    return jsonify({
+        "success": True,
+        "conversation_id": conversation_id
     })
 
 @app.route("/api/memories", methods=["POST"])

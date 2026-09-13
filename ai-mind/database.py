@@ -7,6 +7,7 @@ DATABASE = "ai_mind.db"
 def get_connection():
     connection = sqlite3.connect(DATABASE)
     connection.row_factory = sqlite3.Row
+    connection.execute("PRAGMA foreign_keys = ON")
     return connection
 
 
@@ -118,10 +119,15 @@ def add_message(conversation_id, role, content):
     connection.execute(
         """
         UPDATE conversations
-        SET updated_at = CURRENT_TIMESTAMP
+        SET title = CASE
+                WHEN title = 'New conversation' AND ? = 'user'
+                THEN SUBSTR(TRIM(?), 1, 80)
+                ELSE title
+            END,
+            updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
         """,
-        (conversation_id,)
+        (role, content, conversation_id)
     )
 
     connection.commit()
@@ -150,6 +156,119 @@ def get_messages(conversation_id):
         }
         for row in rows
     ]
+
+
+def list_conversations(search="", limit=100):
+    search_term = f"%{search.strip()}%"
+    connection = get_connection()
+
+    rows = connection.execute(
+        f"""
+        SELECT
+            c.id,
+            CASE
+                WHEN c.title = 'New conversation' THEN COALESCE(
+                    (
+                        SELECT SUBSTR(TRIM(content), 1, 80)
+                        FROM messages first_title_message
+                        WHERE first_title_message.conversation_id = c.id
+                          AND first_title_message.role = 'user'
+                        ORDER BY first_title_message.id ASC
+                        LIMIT 1
+                    ),
+                    c.title
+                )
+                ELSE c.title
+            END AS title,
+            c.created_at,
+            c.updated_at,
+            COUNT(m.id) AS message_count,
+            COALESCE(
+                (
+                    SELECT content
+                    FROM messages first_message
+                    WHERE first_message.conversation_id = c.id
+                      AND first_message.role = 'user'
+                    ORDER BY first_message.id ASC
+                    LIMIT 1
+                ),
+                ''
+            ) AS preview
+        FROM conversations c
+        LEFT JOIN messages m ON m.conversation_id = c.id
+        WHERE (? = '' OR c.title LIKE ? OR EXISTS (
+            SELECT 1
+            FROM messages matching_message
+            WHERE matching_message.conversation_id = c.id
+              AND matching_message.content LIKE ?
+        ))
+        GROUP BY c.id
+        ORDER BY c.updated_at DESC, c.id DESC
+        LIMIT ?
+        """,
+        (search.strip(), search_term, search_term, limit)
+    ).fetchall()
+
+    connection.close()
+
+    return [dict(row) for row in rows]
+
+
+def get_conversation(conversation_id):
+    connection = get_connection()
+    row = connection.execute(
+        """
+        SELECT
+            id,
+            CASE
+                WHEN title = 'New conversation' THEN COALESCE(
+                    (
+                        SELECT SUBSTR(TRIM(content), 1, 80)
+                        FROM messages first_title_message
+                        WHERE first_title_message.conversation_id = conversations.id
+                          AND first_title_message.role = 'user'
+                        ORDER BY first_title_message.id ASC
+                        LIMIT 1
+                    ),
+                    title
+                )
+                ELSE title
+            END AS title,
+            created_at,
+            updated_at
+        FROM conversations
+        WHERE id = ?
+        """,
+        (conversation_id,)
+    ).fetchone()
+    connection.close()
+    return dict(row) if row else None
+
+
+def rename_conversation(conversation_id, title):
+    connection = get_connection()
+    cursor = connection.execute(
+        """
+        UPDATE conversations
+        SET title = ?, updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+        """,
+        (title, conversation_id)
+    )
+    connection.commit()
+    connection.close()
+    return cursor.rowcount > 0
+
+
+def delete_conversation(conversation_id):
+    connection = get_connection()
+    cursor = connection.execute(
+        "DELETE FROM conversations WHERE id = ?",
+        (conversation_id,)
+    )
+    connection.commit()
+    connection.close()
+    return cursor.rowcount > 0
 
 def add_memory(content, memory_type="general", confidence=0.5):
     connection = get_connection()

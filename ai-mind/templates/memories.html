@@ -8,7 +8,8 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
 *{box-sizing:border-box}
 :root{--bg:#0d1210;--sidebar:#111815;--surface:#19211d;--surface2:#121a15;--hover:#202c26;--border:#2a3830;--text:#f3f6f1;--muted:#9aa9a0;--muted2:#68766e;--accent:#a8e5bd;--accent-strong:#7fd69d;--danger:#f0a4a9}
-html,body{height:100%}
+html,body{height:100%;scrollbar-width:none;-ms-overflow-style:none}
+*{scrollbar-width:none;-ms-overflow-style:none}*::-webkit-scrollbar{display:none;width:0;height:0}
 body{margin:0;background:radial-gradient(circle at 76% -10%,rgba(127,214,157,.08),transparent 33%),var(--bg);color:var(--text);font-family:"DM Sans",ui-sans-serif,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 button,input,select{font:inherit}
 .app{display:flex;height:100dvh;overflow:hidden}
@@ -17,6 +18,7 @@ button,input,select{font:inherit}
 .brand-mark,.page-icon{display:grid;place-items:center;background:linear-gradient(145deg,#294437,#1c2a22);border-radius:11px;color:var(--accent)}
 .brand-mark{width:36px;height:36px;font-size:18px}
 .brand-name{font-family:"Space Grotesk",sans-serif;font-size:16px;font-weight:600}.brand-sub{font-size:11px;color:var(--muted);margin-top:3px}
+.new-chat{display:flex;align-items:center;gap:9px;width:100%;height:44px;margin-bottom:22px;padding:0 14px;border:1px solid #405646;border-radius:11px;background:#1b2a21;color:var(--text);cursor:pointer;text-decoration:none;transition:background .18s,border-color .18s,transform .18s}.new-chat:hover{background:#24372b;border-color:#5b7a62;transform:translateY(-1px)}.new-chat span:first-child{font-size:20px;color:var(--accent)}
 .nav{display:grid;gap:5px}.nav a{display:flex;align-items:center;gap:11px;min-height:42px;padding:0 12px;border-radius:10px;color:var(--muted);text-decoration:none;font-size:14px;transition:.18s}.nav a:hover,.nav a.active{background:#1d2922;color:var(--text)}.nav a.active{box-shadow:inset 3px 0 var(--accent)}
 .bottom{margin-top:auto;padding:12px 8px 4px}.connection{display:flex;align-items:center;gap:9px}.dot{width:7px;height:7px;border-radius:50%;background:#75d98b;box-shadow:0 0 0 3px rgba(117,217,139,.08)}.conn-title{font-size:11px;color:#b9bec7}.conn-sub{font-size:10px;color:var(--muted2);margin-top:1px}
 .main{min-width:0;flex:1;overflow-y:auto}
@@ -37,13 +39,14 @@ button,input,select{font:inherit}
 .empty{padding:30px;text-align:center;color:var(--muted);font-size:13px}.loading{color:var(--muted);font-size:13px;padding:15px 2px}.error{padding:14px;border:1px solid #513137;border-radius:10px;background:#211418;color:#e8a4aa;font-size:12px}
 .style-card{padding:20px}.style-header{display:flex;justify-content:space-between;gap:16px;align-items:start}.style-copy{color:var(--muted);font-size:13px;line-height:1.6;margin:5px 0 0}.style-count{color:var(--muted2);font-size:12px;white-space:nowrap}.style-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:16px}.style-field{display:grid;gap:6px}.style-field label{color:var(--muted);font-size:12px}.style-field input{width:100%;height:36px;padding:0 10px;border:1px solid #34473a;border-radius:9px;background:#101711;color:var(--text);outline:none;font-size:13px}.style-actions{display:flex;gap:8px;margin-top:16px}@media(max-width:600px){.style-grid{grid-template-columns:1fr}}
 @media(max-width:800px){.sidebar{display:none}.header{padding:30px 18px 18px}.content{padding:0 18px 40px}.saved-grid{grid-template-columns:1fr}.title{font-size:26px}.description{font-size:13px}.page-icon{width:43px;height:43px}}
-body.light{--bg:#f5f7f4;--sidebar:#eaf0eb;--surface:#ffffff;--surface2:#f0f5f1;--hover:#edf5ef;--border:#d6e1d8;--text:#1e2a22;--muted:#64746a;--muted2:#829087;--accent:#2e8b57;--accent-strong:#247347;--danger:#b84753;background:radial-gradient(circle at 76% -10%,rgba(127,214,157,.2),transparent 33%),var(--bg)}body.light .brand-mark,body.light .page-icon{background:linear-gradient(145deg,#d7eddb,#c4e5cc);color:#247347}body.light .nav a:hover,body.light .nav a.active{background:#dceee1}body.light .refresh,body.light .theme-toggle{background:#dff0e3;border-color:#a9cdb0;color:#214b2e}body.light .refresh:hover,body.light .theme-toggle:hover{background:#cfe8d4;border-color:#82b88e}body.light .card{background:rgba(255,255,255,.88);box-shadow:0 10px 30px rgba(40,75,52,.1)}body.light .chip{background:#dff0e3;color:#28633c}body.light .btn{background:#e8f3ea;color:#285536;border-color:#c2dbc6}body.light .btn:hover{background:#dceee1;border-color:#8fbd98}body.light .btn.primary{background:#2e8b57;color:#fff;border-color:#2e8b57}body.light .btn.primary:hover{background:#247347}body.light .edit-form textarea,body.light .edit-row select,body.light .edit-row input,body.light .style-field input{background:#f7faf7;border-color:#b8d8bf;color:var(--text)}body.light .error{background:#fff0f1}
+body.light .brand-mark,body.light .page-icon{background:linear-gradient(145deg,#d7eddb,#c4e5cc);color:#247347}body.light .nav a:hover,body.light .nav a.active{background:#dceee1}body.light .refresh,body.light .theme-toggle{background:#dff0e3;border-color:#a9cdb0;color:#214b2e}body.light .refresh:hover,body.light .theme-toggle:hover{background:#cfe8d4;border-color:#82b88e}body.light .card{background:rgba(255,255,255,.88);box-shadow:0 10px 30px rgba(40,75,52,.1)}body.light .chip{background:#dff0e3;color:#28633c}body.light .btn{background:#e8f3ea;color:#285536;border-color:#c2dbc6}body.light .btn:hover{background:#dceee1;border-color:#8fbd98}body.light .btn.primary{background:#2e8b57;color:#fff;border-color:#2e8b57}body.light .btn.primary:hover{background:#247347}body.light .edit-form textarea,body.light .edit-row select,body.light .edit-row input,body.light .style-field input{background:#f7faf7;border-color:#b8d8bf;color:var(--text)}body.light .error{background:#fff0f1}
 </style>
 </head>
 <body>
 <div class="app">
 <aside class="sidebar">
   <div class="brand"><div class="brand-mark">✦</div><div><div class="brand-name">AI Mind</div><div class="brand-sub">Personal assistant</div></div></div>
+  <a href="/" class="new-chat" id="new-chat"><span>＋</span><span>New chat</span></a>
   <nav class="nav">
     <a href="/">◈ <span>Chat</span></a>
     <a href="/memories" class="active">✦ <span>Memories</span></a>
@@ -94,6 +97,10 @@ body.light{--bg:#f5f7f4;--sidebar:#eaf0eb;--surface:#ffffff;--surface2:#f0f5f1;-
 
 <script>
 const conversationId = localStorage.getItem("conversation_id");
+
+document.getElementById("new-chat").onclick = () => {
+  localStorage.removeItem("conversation_id");
+};
 const savedTheme = localStorage.getItem("ai-mind-theme") || "dark";
 const themeToggle = document.getElementById("theme-toggle");
 

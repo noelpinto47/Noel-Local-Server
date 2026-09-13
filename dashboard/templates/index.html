@@ -295,17 +295,32 @@ h1 {
     --dashboard-accent-soft: #dff0e3;
     --dashboard-shadow: 0 10px 30px rgba(40, 75, 52, .1);
     --dashboard-forest: url("https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=2200&q=85");
+    --dashboard-forest-light: url("https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=2200&q=85");
 }
 
 html {
     min-height: 100%;
     background: var(--dashboard-bg);
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+* {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+*::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
 }
 
 body {
     min-height: 100%;
     background:
-        radial-gradient(circle at 78% -12%, rgba(127, 214, 157, .2), transparent 34%),
+        linear-gradient(rgba(245, 247, 244, .84), rgba(245, 247, 244, .91)),
+        var(--dashboard-forest-light) center / cover fixed,
         var(--dashboard-bg);
     color: var(--dashboard-text);
     font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif;
@@ -534,7 +549,7 @@ body.dark .cost {
 </head>
 
 
-<body>
+<body class="dark">
 
 
 <div class="container">
@@ -1048,7 +1063,7 @@ Boot time
 
 <script>
 
-const savedTheme = localStorage.getItem("dashboard-theme") || "light";
+const savedTheme = localStorage.getItem("dashboard-theme") || "dark";
 const themeToggle = document.getElementById("theme-toggle");
 
 document.body.classList.toggle("dark", savedTheme === "dark");

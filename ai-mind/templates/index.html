@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Mind</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="app-shell">
+<aside class="sidebar">
+  <div class="brand"><div class="brand-mark">✦</div><div><div class="brand-name">AI Mind</div><div class="brand-subtitle">Personal assistant</div></div></div>
+  <button id="new-chat" class="new-chat"><span>＋</span><span>New chat</span></button>
+  <nav class="sidebar-nav">
+    <a href="/" class="nav-item active"><span>◈</span><span>Chat</span></a>
+    <a href="/memories" class="nav-item"><span>✦</span><span>Memories</span></a>
+  </nav>
+  <div class="sidebar-bottom"><div class="connection"><span class="connection-dot"></span><div><div class="connection-title">Local server</div><div class="connection-subtitle">Connected</div></div></div></div>
+</aside>
+
+<main class="chat-layout">
+<header class="topbar">
+  <div class="topbar-title">
+    <div class="mobile-brand-mark">✦</div>
+    <div><div class="chat-title" id="chat-title">New conversation</div><div class="model-label">Personal AI Mind</div></div>
+  </div>
+  <a href="/memories" class="topbar-button" title="Manage memories">✦</a>
+</header>
+
+<section id="chat" class="chat">
+  <div id="welcome" class="welcome">
+    <div class="welcome-mark">✦</div>
+    <h1>How can I help?</h1>
+    <p>Your personal AI, with your conversations and approved memories.</p>
+    <div class="suggestions">
+      <button class="suggestion" data-prompt="Explain something I'm working on"><span>⌁</span><span>Explain something I'm working on</span></button>
+      <button class="suggestion" data-prompt="Help me plan a project"><span>◇</span><span>Help me plan a project</span></button>
+      <button class="suggestion" data-prompt="Help me solve a technical problem"><span>⌘</span><span>Help me solve a technical problem</span></button>
+    </div>
+  </div>
+  <div id="messages" class="messages"></div>
+</section>
+
+<div class="composer-area">
+<form id="chat-form" class="composer">
+  <textarea id="message-input" rows="1" placeholder="Message your AI Mind..." autocomplete="off"></textarea>
+  <button id="send-button" class="send-button" type="submit" aria-label="Send message"><span>↑</span></button>
+</form>
+<div class="composer-hint"><span>Enter to send</span><span>•</span><span>Shift + Enter for a new line</span></div>
+</div>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

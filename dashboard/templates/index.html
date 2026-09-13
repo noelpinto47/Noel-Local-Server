@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Noel Server</title>
+
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+
+    margin: 0;
+
+    font-family:
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    background: #0f1115;
+
+    color: #f5f5f5;
+}
+
+
+.container {
+
+    max-width: 1200px;
+
+    margin: auto;
+
+    padding: 32px 24px;
+}
+
+
+header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 28px;
+}
+
+
+h1 {
+
+    margin: 0;
+
+    font-size: 30px;
+}
+
+
+.subtitle {
+
+    color: #8b8f98;
+
+    margin-top: 5px;
+}
+
+
+.status {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    color: #7ee787;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.service-button {
+    display: inline-flex;
+    align-items: center;
+    padding: 9px 14px;
+    border-radius: 9px;
+    background: #181b21;
+    border: 1px solid #292d35;
+    color: #f5f5f5;
+    text-decoration: none;
+    font-size: 14px;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.service-button:hover {
+    background: #22262e;
+    border-color: #3a404b;
+}
+
+.dot {
+
+    width: 9px;
+
+    height: 9px;
+
+    background: #7ee787;
+
+    border-radius: 50%;
+}
+
+
+.grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(210px, 1fr));
+
+    gap: 16px;
+}
+
+
+.card {
+
+    background: #181b21;
+
+    border: 1px solid #292d35;
+
+    border-radius: 14px;
+
+    padding: 20px;
+}
+
+
+.card-title {
+
+    color: #8b8f98;
+
+    font-size: 13px;
+
+    margin-bottom: 10px;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.04em;
+}
+
+
+.value {
+
+    font-size: 28px;
+
+    font-weight: 600;
+}
+
+
+.unit {
+
+    font-size: 15px;
+
+    color: #8b8f98;
+}
+
+
+.section {
+
+    margin-top: 24px;
+}
+
+
+.section-title {
+
+    font-size: 18px;
+
+    margin-bottom: 12px;
+}
+
+
+.row {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    padding: 11px 0;
+
+    border-bottom: 1px solid #292d35;
+}
+
+
+.label {
+
+    color: #8b8f98;
+}
+
+
+.process {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr 80px 80px;
+
+    padding: 10px 0;
+
+    border-bottom: 1px solid #292d35;
+}
+
+
+.process-header {
+
+    color: #8b8f98;
+
+    font-size: 12px;
+
+    text-transform: uppercase;
+}
+
+
+.power-cost {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 12px;
+
+    margin-top: 14px;
+}
+
+
+.cost {
+
+    background: #111318;
+
+    border-radius: 10px;
+
+    padding: 14px;
+}
+
+
+.cost-label {
+
+    color: #8b8f98;
+
+    font-size: 12px;
+}
+
+
+.cost-value {
+
+    font-size: 21px;
+
+    margin-top: 5px;
+}
+
+
+@media(max-width: 600px) {
+
+    .power-cost {
+
+        grid-template-columns: 1fr;
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+<header>
+
+<div>
+
+<h1>🖥️ Noel Server</h1>
+
+<div class="subtitle">
+    Local server dashboard
+</div>
+
+<div class="subtitle">
+    Last update ·
+    <span id="last-updated">--</span>
+</div>
+
+</div>
+
+
+<div class="header-actions">
+
+    <a
+        class="service-button"
+        href="https://sprint-server.perch-altair.ts.net/"
+        target="_blank"
+        rel="noopener noreferrer"
+    >
+        ☁️ Nextcloud
+    </a>
+
+    <div class="status">
+        <span class="dot"></span>
+
+        <span id="server-status">
+            Online
+        </span>
+    </div>
+
+</div>
+
+</header>
+
+
+<!-- SYSTEM -->
+
+<div class="grid">
+
+
+<div class="card">
+
+<div class="card-title">
+CPU
+</div>
+
+<div class="value">
+
+<span id="cpu">
+--
+</span>
+
+<span class="unit">
+%
+</span>
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<div class="card-title">
+Memory
+</div>
+
+<div class="value">
+
+<span id="memory">
+--
+</span>
+
+<span class="unit">
+%
+</span>
+
+</div>
+
+<div class="subtitle"
+     id="memory-details">
+--
+</div>
+
+</div>
+
+
+<div class="card">
+
+<div class="card-title">
+Disk
+</div>
+
+<div class="value">
+
+<span id="disk">
+--
+</span>
+
+<span class="unit">
+%
+</span>
+
+</div>
+
+<div class="subtitle"
+     id="disk-details">
+--
+</div>
+
+</div>
+
+
+<div class="card">
+
+<div class="card-title">
+Server uptime
+</div>
+
+<div class="value">
+
+<span id="uptime">
+--
+</span>
+
+</div>
+
+</div>
+
+
+</div>
+
+
+<!-- POWER -->
+
+<div class="section">
+
+<div class="section-title">
+⚡ Electricity
+</div>
+
+
+<div class="card">
+
+
+<div class="grid">
+
+
+<div>
+
+<div class="card-title">
+Current power
+</div>
+
+<div class="value">
+
+<span id="watts">
+--
+</span>
+
+<span class="unit">
+W
+</span>
+
+</div>
+
+</div>
+
+
+<div>
+
+<div class="card-title">
+Electricity price
+</div>
+
+<div class="value">
+
+€<span id="price">
+--
+</span>
+
+<span class="unit">
+/ kWh
+</span>
+
+</div>
+
+</div>
+
+
+</div>
+
+
+<div class="power-cost">
+
+
+<div class="cost">
+
+<div class="cost-label">
+PER HOUR
+</div>
+
+<div class="cost-value">
+€<span id="cost-hour">--</span>
+</div>
+
+</div>
+
+
+<div class="cost">
+
+<div class="cost-label">
+PER DAY
+</div>
+
+<div class="cost-value">
+€<span id="cost-day">--</span>
+</div>
+
+</div>
+
+
+<div class="cost">
+
+<div class="cost-label">
+PER MONTH
+</div>
+
+<div class="cost-value">
+€<span id="cost-month">--</span>
+</div>
+
+</div>
+
+
+</div>
+
+
+</div>
+
+</div>
+
+
+<!-- TAILSCALE -->
+
+<div class="section">
+
+<div class="section-title">
+🔗 Tailscale
+</div>
+
+
+<div class="card">
+
+
+<div class="row">
+
+<span class="label">
+Status
+</span>
+
+<span id="tailscale-status">
+--
+</span>
+
+</div>
+
+
+<div class="row">
+
+<span class="label">
+Hostname
+</span>
+
+<span id="tailscale-hostname">
+--
+</span>
+
+</div>
+
+
+<div class="row">
+
+<span class="label">
+Tailscale IP
+</span>
+
+<span id="tailscale-ip">
+--
+</span>
+
+</div>
+
+
+</div>
+
+</div>
+
+<!-- AI MIND -->
+
+<div class="section">
+
+    <div class="section-title">
+        🧠 AI Mind
+    </div>
+
+    <div class="card">
+
+        <div class="row">
+
+            <span class="label">
+                Status
+            </span>
+
+            <span id="ai-status">
+                Checking...
+            </span>
+
+        </div>
+
+        <div class="row">
+
+            <span class="label">
+                Requests
+            </span>
+
+            <span id="ai-requests">
+                --
+            </span>
+
+        </div>
+
+        <div class="row">
+
+            <span class="label">
+                Available again
+            </span>
+
+            <span id="ai-reset">
+                --
+            </span>
+
+        </div>
+
+        <div class="row">
+
+            <span class="label">
+                Last checked
+            </span>
+
+            <span id="ai-last-checked">
+                --
+            </span>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- DISK -->
+
+<div class="section">
+
+<div class="section-title">
+🌡️ Disk temperature
+</div>
+
+
+<div class="card">
+
+<div id="disk-temperatures">
+Loading...
+</div>
+
+</div>
+
+</div>
+
+
+<!-- PROCESSES -->
+
+<div class="section">
+
+<div class="section-title">
+⚙️ Top processes
+</div>
+
+
+<div class="card">
+
+
+<div class="process process-header">
+
+<div>
+PROCESS
+</div>
+
+<div>
+CPU
+</div>
+
+<div>
+RAM
+</div>
+
+</div>
+
+
+<div id="process-list">
+
+Loading...
+
+</div>
+
+
+</div>
+
+</div>
+
+
+<!-- SYSTEM INFORMATION -->
+
+<div class="section">
+
+<div class="section-title">
+System information
+</div>
+
+
+<div class="card">
+
+
+<div class="row">
+
+<span class="label">
+Hostname
+</span>
+
+<span id="hostname">
+--
+</span>
+
+</div>
+
+
+<div class="row">
+
+<span class="label">
+Operating system
+</span>
+
+<span id="os">
+--
+</span>
+
+</div>
+
+
+<div class="row">
+
+<span class="label">
+Boot time
+</span>
+
+<span id="boot-time">
+--
+</span>
+
+</div>
+
+
+</div>
+
+</div>
+
+
+</div>
+
+
+<script>
+
+
+async function updateDashboard() {
+
+    try {
+
+        const response =
+            await fetch("/api/system");
+
+        const data =
+            await response.json();
+
+
+        // LAST UPDATED
+
+        if (data.last_updated) {
+
+            const updated =
+                new Date(data.last_updated);
+
+            document.getElementById(
+                "last-updated"
+            ).textContent =
+                updated.toLocaleString();
+
+        }
+
+
+        // SYSTEM
+
+        const system =
+            data.system;
+
+
+        document.getElementById("cpu")
+            .textContent =
+                system.cpu;
+
+
+        document.getElementById("memory")
+            .textContent =
+                system.memory;
+
+
+        document.getElementById("memory-details")
+            .textContent =
+                `${system.memory_used_gb} GB / ` +
+                `${system.memory_total_gb} GB`;
+
+
+        document.getElementById("disk")
+            .textContent =
+                system.disk;
+
+
+        document.getElementById("disk-details")
+            .textContent =
+                `${system.disk_used_gb} GB / ` +
+                `${system.disk_total_gb} GB`;
+
+
+        document.getElementById("uptime")
+            .textContent =
+                system.uptime;
+
+
+        document.getElementById("hostname")
+            .textContent =
+                system.hostname;
+
+
+        document.getElementById("os")
+            .textContent =
+                system.os;
+
+
+        document.getElementById("boot-time")
+            .textContent =
+                system.boot_time;
+
+
+        // POWER
+
+        const power =
+            data.power;
+
+
+        document.getElementById("watts")
+            .textContent =
+                power.watts;
+
+
+        document.getElementById("price")
+            .textContent =
+                power.price_per_kwh.toFixed(3);
+
+
+        document.getElementById("cost-hour")
+            .textContent =
+                power.cost_hour.toFixed(4);
+
+
+        document.getElementById("cost-day")
+            .textContent =
+                power.cost_day.toFixed(2);
+
+
+        document.getElementById("cost-month")
+            .textContent =
+                power.cost_month.toFixed(2);
+
+
+        // TAILSCALE
+
+        const tailscale =
+            data.tailscale;
+
+
+        document.getElementById("tailscale-status")
+            .textContent =
+                tailscale.online
+                    ? "🟢 Online"
+                    : "🔴 " + tailscale.status;
+
+
+        document.getElementById("tailscale-hostname")
+            .textContent =
+                tailscale.hostname || "--";
+
+
+        document.getElementById("tailscale-ip")
+            .textContent =
+                tailscale.tailscale_ip || "--";
+
+// AI MIND
+
+const ai = data.ai || {};
+
+const aiStatus =
+    document.getElementById("ai-status");
+
+const aiRequests =
+    document.getElementById("ai-requests");
+
+const aiReset =
+    document.getElementById("ai-reset");
+
+const aiLastChecked =
+    document.getElementById("ai-last-checked");
+
+
+if (ai.available) {
+
+    aiStatus.textContent = "🟢 Available";
+
+} else {
+
+    aiStatus.textContent = "🔴 " + (
+        ai.status || "Unavailable"
+    );
+
+}
+
+
+if (
+    ai.limit !== null &&
+    ai.remaining !== null
+) {
+
+    aiRequests.textContent =
+        `${ai.remaining} / ${ai.limit}`;
+
+} else {
+
+    aiRequests.textContent = "--";
+
+}
+
+
+if (!ai.available && ai.reset_at) {
+
+    const remainingSeconds =
+        Math.max(
+            0,
+            Math.floor(
+                ai.reset_at - Date.now() / 1000
+            )
+        );
+
+    const hours =
+        Math.floor(remainingSeconds / 3600);
+
+    const minutes =
+        Math.floor(
+            (remainingSeconds % 3600) / 60
+        );
+
+    const seconds =
+        remainingSeconds % 60;
+
+    if (remainingSeconds > 0) {
+
+        aiReset.textContent =
+            `${hours}h ${minutes}m ${seconds}s`;
+
+    } else {
+
+        aiReset.textContent = "--";
+
+    }
+
+} else {
+
+    aiReset.textContent = "--";
+
+}
+
+aiLastChecked.textContent =
+    new Date().toLocaleTimeString();
+
+
+        // DISK TEMPERATURE
+
+        const diskContainer =
+            document.getElementById(
+                "disk-temperatures"
+            );
+
+
+        if (data.disks.length === 0) {
+
+            diskContainer.textContent =
+                "Temperature data unavailable";
+
+        } else {
+
+            diskContainer.innerHTML =
+                data.disks.map(
+                    disk =>
+
+                        `<div class="row">
+
+                            <span class="label">
+                                Disk
+                            </span>
+
+                            <span>
+                                ${disk.temperature} °C
+                            </span>
+
+                        </div>`
+
+                ).join("");
+
+        }
+
+
+        // PROCESSES
+
+        const processContainer =
+            document.getElementById(
+                "process-list"
+            );
+
+
+        processContainer.innerHTML =
+            data.processes.map(
+                process =>
+
+                    `<div class="process">
+
+                        <div>
+
+                            ${process.name}
+
+                            <span class="subtitle">
+                                PID ${process.pid}
+                            </span>
+
+                        </div>
+
+                        <div>
+                            ${process.cpu}%
+                        </div>
+
+                        <div>
+                            ${process.memory}%
+                        </div>
+
+                    </div>`
+
+            ).join("");
+
+
+    } catch (error) {
+
+        console.error(
+            "Dashboard error:",
+            error
+        );
+
+    }
+
+}
+
+
+// Initial update
+
+updateDashboard();
+
+
+// Refresh every 5 seconds
+
+setInterval(
+    updateDashboard,
+    5000
+);
+
+</script>
+
+
+</body>
+
+</html>

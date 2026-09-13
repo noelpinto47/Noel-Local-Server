@@ -1,0 +1,44 @@
+# Python bytecode and test/tool caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Local Python environments
+.venv/
+venv/
+env/
+ENV/
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+
+# Local application data and databases
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+instance/
+
+# Logs and runtime output
+*.log
+logs/
+
+# Frontend dependencies and build output
+node_modules/
+dist/
+build/
+
+# Operating system and editor files
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memories · AI Mind</title>
+<style>
+*{box-sizing:border-box}
+:root{--bg:#0b0d10;--sidebar:#101216;--surface:#15181d;--surface2:#111419;--hover:#1b1f25;--border:#272c34;--text:#f2f4f7;--muted:#8b929d;--muted2:#626a75;--danger:#e06b75}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit}
+.app{display:flex;height:100dvh;overflow:hidden}
+.sidebar{width:252px;flex:0 0 252px;padding:18px 14px;display:flex;flex-direction:column;background:var(--sidebar);border-right:1px solid var(--border)}
+.brand{display:flex;align-items:center;gap:11px;padding:4px 8px 22px}
+.brand-mark,.page-icon{display:grid;place-items:center;background:#20242b;border-radius:10px}
+.brand-mark{width:34px;height:34px;font-size:17px}
+.brand-name{font-size:15px;font-weight:650}.brand-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.nav{display:grid;gap:4px}.nav a{display:flex;align-items:center;gap:11px;min-height:40px;padding:0 11px;border-radius:9px;color:var(--muted);text-decoration:none;font-size:13px}.nav a:hover,.nav a.active{background:#1a1e24;color:var(--text)}
+.bottom{margin-top:auto;padding:12px 8px 4px}.connection{display:flex;align-items:center;gap:9px}.dot{width:7px;height:7px;border-radius:50%;background:#75d98b;box-shadow:0 0 0 3px rgba(117,217,139,.08)}.conn-title{font-size:11px;color:#b9bec7}.conn-sub{font-size:10px;color:var(--muted2);margin-top:1px}
+.main{min-width:0;flex:1;overflow-y:auto}
+.header{max-width:980px;margin:0 auto;padding:42px 28px 20px;display:flex;align-items:center;justify-content:space-between}
+.heading{display:flex;align-items:center;gap:14px}.page-icon{width:44px;height:44px;font-size:20px}.eyebrow{font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:.08em}.title{margin:2px 0 0;font-size:27px;letter-spacing:-.035em}.description{margin:5px 0 0;color:var(--muted);font-size:13px}
+.refresh{height:36px;padding:0 12px;border:1px solid var(--border);border-radius:9px;background:var(--surface);color:#cbd0d7;cursor:pointer}.refresh:hover{background:var(--hover);color:var(--text)}
+.content{max-width:980px;margin:0 auto;padding:0 28px 50px}
+.section{margin-top:22px}.section-header{display:flex;align-items:end;justify-content:space-between;margin-bottom:10px}.section-title{font-size:16px;font-weight:620}.section-count{color:var(--muted2);font-size:11px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:13px}
+.candidate{padding:18px 18px 16px;margin-bottom:9px}
+.memory-text{font-size:14px;line-height:1.55;color:#e9ebee}.meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:9px;color:var(--muted);font-size:11px}
+.chip{display:inline-flex;align-items:center;padding:4px 8px;border-radius:6px;background:#20242b;color:#aeb5bf;font-size:10px}
+.actions{display:flex;gap:8px;margin-top:14px}
+.btn{height:34px;padding:0 12px;border-radius:8px;border:1px solid var(--border);background:#1c2026;color:#dfe3e8;cursor:pointer;font-size:12px}.btn:hover{background:#242932}.btn.primary{background:#eef0f2;color:#111318;border-color:#eef0f2}.btn.primary:hover{background:#fff}.btn.danger{color:#e7a0a7}.btn:disabled{opacity:.45;cursor:default}
+.saved-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.saved{padding:17px}.saved-top{display:flex;justify-content:space-between;gap:12px}.saved .memory-text{font-size:13px}.confidence{color:var(--muted2);font-size:10px;white-space:nowrap}.saved-actions{display:flex;gap:7px;margin-top:15px}
+.edit-form{margin-top:13px;padding-top:13px;border-top:1px solid var(--border)}.edit-form textarea{width:100%;min-height:80px;resize:vertical;padding:10px;border:1px solid #343a44;border-radius:8px;background:#0f1115;color:var(--text);outline:none;font-size:12px;line-height:1.5}.edit-row{display:grid;grid-template-columns:1fr 120px;gap:8px;margin-top:8px}.edit-row select,.edit-row input{width:100%;height:34px;padding:0 9px;border:1px solid #343a44;border-radius:8px;background:#0f1115;color:var(--text);outline:none;font-size:11px}.edit-actions{display:flex;gap:7px;margin-top:8px}
+.empty{padding:30px;text-align:center;color:var(--muted);font-size:13px}.loading{color:var(--muted);font-size:13px;padding:15px 2px}.error{padding:14px;border:1px solid #513137;border-radius:10px;background:#211418;color:#e8a4aa;font-size:12px}
+@media(max-width:800px){.sidebar{display:none}.header{padding:28px 18px 16px}.content{padding:0 18px 40px}.saved-grid{grid-template-columns:1fr}.title{font-size:24px}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand"><div class="brand-mark">✦</div><div><div class="brand-name">AI Mind</div><div class="brand-sub">Personal assistant</div></div></div>
+  <nav class="nav">
+    <a href="/">◈ <span>Chat</span></a>
+    <a href="/memories" class="active">✦ <span>Memories</span></a>
+  </nav>
+  <div class="bottom"><div class="connection"><span class="dot"></span><div><div class="conn-title">Local server</div><div class="conn-sub">Connected</div></div></div></div>
+</aside>
+
+<main class="main">
+  <header class="header">
+    <div class="heading">
+      <div class="page-icon">✦</div>
+      <div><div class="eyebrow">AI Mind</div><h1 class="title">Memories</h1><p class="description">Information your AI can use across conversations.</p></div>
+    </div>
+    <button class="refresh" id="refresh">↻ Refresh</button>
+  </header>
+
+  <div class="content">
+    <section class="section">
+      <div class="section-header"><div class="section-title">Potential memories</div><div class="section-count" id="candidate-count"></div></div>
+      <div id="candidates"><div class="loading">Looking for useful memories...</div></div>
+    </section>
+
+    <section class="section">
+      <div class="section-header"><div class="section-title">Saved memories</div><div class="section-count" id="saved-count"></div></div>
+      <div id="saved"><div class="loading">Loading saved memories...</div></div>
+    </section>
+  </div>
+</main>
+</div>
+
+<script>
+const conversationId = localStorage.getItem("conversation_id");
+
+const typeLabels = {
+  general: "General",
+  fact: "Fact",
+  personal_fact: "Personal fact",
+  communication_preference: "Communication preference",
+  technical_preference: "Technical preference",
+  long_term_project: "Long-term project",
+  recurring_preference: "Recurring preference"
+};
+
+const typeOptions = [
+  ["fact","Fact"],
+  ["communication_preference","Communication preference"],
+  ["technical_preference","Technical preference"],
+  ["long_term_project","Long-term project"],
+  ["recurring_preference","Recurring preference"],
+  ["general","General"]
+];
+
+function esc(value) {
+  const div = document.createElement("div");
+  div.textContent = value ?? "";
+  return div.innerHTML;
+}
+
+function label(type) {
+  return typeLabels[type] || type || "General";
+}
+
+async function loadCandidates() {
+  const container = document.getElementById("candidates");
+
+  if (!conversationId) {
+    container.innerHTML = '<div class="empty">Start a conversation first. Potential memories will appear here.</div>';
+    document.getElementById("candidate-count").textContent = "";
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/memory-candidates/${conversationId}`);
+    const data = await response.json();
+
+    if (!response.ok) throw new Error(data.error || "Failed to load potential memories.");
+
+    const candidates = data.candidates || [];
+    document.getElementById("candidate-count").textContent =
+      `${candidates.length} ${candidates.length === 1 ? "candidate" : "candidates"}`;
+
+    if (!candidates.length) {
+      container.innerHTML = '<div class="empty">No new potential memories found.</div>';
+      return;
+    }
+
+    container.innerHTML = "";
+
+    candidates.forEach((memory, index) => {
+      const card = document.createElement("div");
+      card.className = "card candidate";
+      card.innerHTML = `
+        <div class="memory-text">${esc(memory.content)}</div>
+        <div class="meta">
+          <span class="chip">${esc(label(memory.type))}</span>
+          <span>Confidence ${Math.round((Number(memory.confidence) || 0) * 100)}%</span>
+        </div>
+        <div class="actions">
+          <button class="btn primary" data-action="remember">✓ Remember</button>
+          <button class="btn" data-action="ignore">× Ignore</button>
+        </div>
+      `;
+
+      card.querySelector('[data-action="ignore"]').onclick = async () => {
+    const button = card.querySelector('[data-action="ignore"]');
+
+    button.disabled = true;
+
+    try {
+        const response = await fetch("/api/memories/ignore", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                content: memory.content
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                data.error || "Failed to ignore memory."
+            );
+        }
+
+        card.remove();
+        updateCandidateCount();
+
+    } catch (error) {
+        button.disabled = false;
+        alert(error.message);
+    }
+};
+
+      card.querySelector('[data-action="remember"]').onclick = async (event) => {
+        const button = event.currentTarget;
+        button.disabled = true;
+
+        try {
+          const response = await fetch("/api/memories", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+              content: memory.content,
+              type: memory.type || "general",
+              confidence: Number(memory.confidence) || 0.5
+            })
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) throw new Error(data.error || "Failed to save memory.");
+
+          card.remove();
+          await loadSaved();
+          updateCandidateCount();
+        } catch (error) {
+          button.disabled = false;
+          alert(error.message);
+        }
+      };
+
+      container.appendChild(card);
+    });
+  } catch (error) {
+    container.innerHTML = `<div class="error">${esc(error.message)}</div>`;
+  }
+}
+
+function updateCandidateCount() {
+  const count = document.querySelectorAll("#candidates .candidate").length;
+  document.getElementById("candidate-count").textContent =
+    `${count} ${count === 1 ? "candidate" : "candidates"}`;
+}
+
+async function loadSaved() {
+  const container = document.getElementById("saved");
+
+  try {
+    const response = await fetch("/api/memories");
+    const data = await response.json();
+
+    if (!response.ok) throw new Error(data.error || "Failed to load memories.");
+
+    const memories = data.memories || [];
+    document.getElementById("saved-count").textContent =
+      `${memories.length} ${memories.length === 1 ? "memory" : "memories"}`;
+
+    if (!memories.length) {
+      container.innerHTML = '<div class="empty">No saved memories yet.</div>';
+      return;
+    }
+
+    container.innerHTML = "";
+    const grid = document.createElement("div");
+    grid.className = "saved-grid";
+
+    memories.forEach(memory => grid.appendChild(createSavedCard(memory)));
+    container.appendChild(grid);
+  } catch (error) {
+    container.innerHTML = `<div class="error">${esc(error.message)}</div>`;
+  }
+}
+
+function createSavedCard(memory) {
+  const card = document.createElement("div");
+  card.className = "card saved";
+  card.innerHTML = `
+    <div class="saved-top">
+      <div class="memory-text">${esc(memory.content)}</div>
+      <div class="confidence">${Math.round((Number(memory.confidence) || 0) * 100)}%</div>
+    </div>
+    <div class="meta"><span class="chip">${esc(label(memory.memory_type))}</span></div>
+    <div class="saved-actions">
+      <button class="btn" data-edit>Edit</button>
+      <button class="btn danger" data-forget>Forget</button>
+    </div>
+  `;
+
+  card.querySelector("[data-edit]").onclick = () => showEditForm(card, memory);
+  card.querySelector("[data-forget]").onclick = async () => {
+    if (!confirm("Forget this memory?")) return;
+
+    try {
+      const response = await fetch(`/api/memories/${memory.id}`, {method: "DELETE"});
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Failed to forget memory.");
+      await loadSaved();
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
+  return card;
+}
+
+function showEditForm(card, memory) {
+  if (card.querySelector(".edit-form")) return;
+
+  const form = document.createElement("div");
+  form.className = "edit-form";
+
+  const options = typeOptions.map(([value, text]) =>
+    `<option value="${esc(value)}" ${memory.memory_type === value ? "selected" : ""}>${esc(text)}</option>`
+  ).join("");
+
+  form.innerHTML = `
+    <textarea>${esc(memory.content)}</textarea>
+    <div class="edit-row">
+      <select>${options}</select>
+      <input type="number" min="0" max="1" step="0.01" value="${Number(memory.confidence) || 0.5}">
+    </div>
+    <div class="edit-actions">
+      <button class="btn primary" data-save>Save</button>
+      <button class="btn" data-cancel>Cancel</button>
+    </div>
+  `;
+
+  card.appendChild(form);
+  form.querySelector("textarea").focus();
+
+  form.querySelector("[data-cancel]").onclick = () => form.remove();
+
+  form.querySelector("[data-save]").onclick = async () => {
+    const content = form.querySelector("textarea").value.trim();
+    const type = form.querySelector("select").value;
+    const confidence = Number(form.querySelector("input").value);
+
+    if (!content) {
+      alert("Memory content cannot be empty.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/memories/${memory.id}`, {
+        method: "PUT",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({content, type, confidence})
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Failed to update memory.");
+
+      await loadSaved();
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+}
+
+document.getElementById("refresh").onclick = async () => {
+  await Promise.all([loadCandidates(), loadSaved()]);
+};
+
+Promise.all([loadCandidates(), loadSaved()]);
+</script>
+</body>
+</html>

@@ -1,0 +1,374 @@
+import sqlite3
+
+DATABASE = "ai_mind.db"
+
+
+def get_connection():
+    connection = sqlite3.connect(DATABASE)
+    connection.row_factory = sqlite3.Row
+    return connection
+
+
+def init_database():
+    connection = get_connection()
+
+    connection.execute("""
+        CREATE TABLE IF NOT EXISTS conversations (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL DEFAULT 'New conversation',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    connection.execute("""
+        CREATE TABLE IF NOT EXISTS messages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            conversation_id INTEGER NOT NULL,
+            role TEXT NOT NULL,
+            content TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+            FOREIGN KEY (conversation_id)
+                REFERENCES conversations(id)
+                ON DELETE CASCADE
+        )
+    """)
+
+    connection.execute("""
+        CREATE TABLE IF NOT EXISTS memories (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            content TEXT NOT NULL,
+            memory_type TEXT NOT NULL DEFAULT 'general',
+            confidence REAL NOT NULL DEFAULT 0.5,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    connection.execute("""
+        CREATE TABLE IF NOT EXISTS ignored_memories (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            content TEXT NOT NULL UNIQUE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    connection.execute("""
+        CREATE TABLE IF NOT EXISTS ai_status (
+            id INTEGER PRIMARY KEY CHECK (id = 1),
+            available INTEGER NOT NULL DEFAULT 1,
+            status TEXT NOT NULL DEFAULT 'Available',
+            rate_limit INTEGER,
+            remaining INTEGER,
+            reset_at REAL,
+            last_error TEXT,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    connection.commit()
+    connection.close()
+
+
+def create_conversation(title="New conversation"):
+    connection = get_connection()
+
+    cursor = connection.execute(
+        """
+        INSERT INTO conversations (title)
+        VALUES (?)
+        """,
+        (title,)
+    )
+
+    conversation_id = cursor.lastrowid
+
+    connection.commit()
+    connection.close()
+
+    return conversation_id
+
+
+def add_message(conversation_id, role, content):
+    connection = get_connection()
+
+    connection.execute(
+        """
+        INSERT INTO messages (
+            conversation_id,
+            role,
+            content
+        )
+        VALUES (?, ?, ?)
+        """,
+        (conversation_id, role, content)
+    )
+
+    connection.execute(
+        """
+        UPDATE conversations
+        SET updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+        """,
+        (conversation_id,)
+    )
+
+    connection.commit()
+    connection.close()
+
+
+def get_messages(conversation_id):
+    connection = get_connection()
+
+    rows = connection.execute(
+        """
+        SELECT role, content
+        FROM messages
+        WHERE conversation_id = ?
+        ORDER BY id ASC
+        """,
+        (conversation_id,)
+    ).fetchall()
+
+    connection.close()
+
+    return [
+        {
+            "role": row["role"],
+            "content": row["content"]
+        }
+        for row in rows
+    ]
+
+def add_memory(content, memory_type="general", confidence=0.5):
+    connection = get_connection()
+
+    cursor = connection.execute(
+        """
+        INSERT INTO memories (
+            content,
+            memory_type,
+            confidence
+        )
+        VALUES (?, ?, ?)
+        """,
+        (content, memory_type, confidence)
+    )
+
+    memory_id = cursor.lastrowid
+
+    connection.commit()
+    connection.close()
+
+    return memory_id
+
+
+def get_memories():
+    connection = get_connection()
+
+    rows = connection.execute(
+        """
+        SELECT id, content, memory_type, confidence
+        FROM memories
+        ORDER BY updated_at DESC
+        """
+    ).fetchall()
+
+    connection.close()
+
+    return [
+        {
+            "id": row["id"],
+            "content": row["content"],
+            "memory_type": row["memory_type"],
+            "confidence": row["confidence"]
+        }
+        for row in rows
+    ]
+
+def delete_memory(memory_id):
+    connection = get_connection()
+
+    connection.execute(
+        """
+        DELETE FROM memories
+        WHERE id = ?
+        """,
+        (memory_id,)
+    )
+
+    connection.commit()
+    connection.close()
+
+def update_memory(memory_id, content, memory_type, confidence):
+    connection = get_connection()
+
+    connection.execute(
+        """
+        UPDATE memories
+        SET content = ?,
+            memory_type = ?,
+            confidence = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+        """,
+        (content, memory_type, confidence, memory_id)
+    )
+
+    connection.commit()
+    connection.close()
+
+
+def memory_exists(content):
+    connection = get_connection()
+
+    row = connection.execute(
+        """
+        SELECT id
+        FROM memories
+        WHERE LOWER(TRIM(content)) = LOWER(TRIM(?))
+        LIMIT 1
+        """,
+        (content,)
+    ).fetchone()
+
+    connection.close()
+
+    return row["id"] if row else None
+
+def add_ignored_memory(content):
+    connection = get_connection()
+
+    connection.execute(
+        """
+        INSERT OR IGNORE INTO ignored_memories (content)
+        VALUES (?)
+        """,
+        (content.strip(),)
+    )
+
+    connection.commit()
+    connection.close()
+
+
+def is_memory_ignored(content):
+    connection = get_connection()
+
+    row = connection.execute(
+        """
+        SELECT id
+        FROM ignored_memories
+        WHERE LOWER(TRIM(content)) = LOWER(TRIM(?))
+        LIMIT 1
+        """,
+        (content,)
+    ).fetchone()
+
+    connection.close()
+
+    return row is not None
+
+
+def get_ignored_memories():
+    connection = get_connection()
+
+    rows = connection.execute(
+        """
+        SELECT content
+        FROM ignored_memories
+        ORDER BY created_at DESC
+        """
+    ).fetchall()
+
+    connection.close()
+
+    return [
+        row["content"]
+        for row in rows
+    ]
+
+def get_ai_status():
+    connection = get_connection()
+
+    row = connection.execute(
+        """
+        SELECT
+            available,
+            status,
+            rate_limit,
+            remaining,
+            reset_at,
+            last_error
+        FROM ai_status
+        WHERE id = 1
+        """
+    ).fetchone()
+
+    connection.close()
+
+    if not row:
+        return {
+            "available": True,
+            "status": "Available",
+            "limit": None,
+            "remaining": None,
+            "reset_at": None,
+            "last_error": None
+        }
+
+    return {
+        "available": bool(row["available"]),
+        "status": row["status"],
+        "limit": row["rate_limit"],
+        "remaining": row["remaining"],
+        "reset_at": row["reset_at"],
+        "last_error": row["last_error"]
+    }
+
+
+def save_ai_status(
+    available,
+    status,
+    limit,
+    remaining,
+    reset_at,
+    last_error
+):
+    connection = get_connection()
+
+    connection.execute(
+        """
+        INSERT INTO ai_status (
+            id,
+            available,
+            status,
+            rate_limit,
+            remaining,
+            reset_at,
+            last_error,
+            updated_at
+        )
+        VALUES (1, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+
+        ON CONFLICT(id) DO UPDATE SET
+            available = excluded.available,
+            status = excluded.status,
+            rate_limit = excluded.rate_limit,
+            remaining = excluded.remaining,
+            reset_at = excluded.reset_at,
+            last_error = excluded.last_error,
+            updated_at = CURRENT_TIMESTAMP
+        """,
+        (
+            int(available),
+            status,
+            limit,
+            remaining,
+            reset_at,
+            last_error
+        )
+    )
+
+    connection.commit()
+    connection.close()

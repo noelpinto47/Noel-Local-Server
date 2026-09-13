@@ -1,3 +1,4 @@
+import json
 import sqlite3
 
 DATABASE = "ai_mind.db"
@@ -63,6 +64,15 @@ def init_database():
             remaining INTEGER,
             reset_at REAL,
             last_error TEXT,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    connection.execute("""
+        CREATE TABLE IF NOT EXISTS communication_style (
+            id INTEGER PRIMARY KEY CHECK (id = 1),
+            profile TEXT NOT NULL DEFAULT '{}',
+            observation_count INTEGER NOT NULL DEFAULT 0,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
@@ -368,6 +378,63 @@ def save_ai_status(
             reset_at,
             last_error
         )
+    )
+
+    connection.commit()
+    connection.close()
+
+
+def get_communication_style():
+    connection = get_connection()
+
+    row = connection.execute(
+        """
+        SELECT profile, observation_count, updated_at
+        FROM communication_style
+        WHERE id = 1
+        """
+    ).fetchone()
+
+    connection.close()
+
+    if not row:
+        return {
+            "profile": {},
+            "observation_count": 0,
+            "updated_at": None
+        }
+
+    try:
+        profile = json.loads(row["profile"])
+    except (TypeError, json.JSONDecodeError):
+        profile = {}
+
+    return {
+        "profile": profile if isinstance(profile, dict) else {},
+        "observation_count": row["observation_count"],
+        "updated_at": row["updated_at"]
+    }
+
+
+def update_communication_style(profile, observation_count=None):
+    connection = get_connection()
+
+    if observation_count is None:
+        existing = connection.execute(
+            "SELECT observation_count FROM communication_style WHERE id = 1"
+        ).fetchone()
+        observation_count = existing["observation_count"] if existing else 0
+
+    connection.execute(
+        """
+        INSERT INTO communication_style (id, profile, observation_count, updated_at)
+        VALUES (1, ?, ?, CURRENT_TIMESTAMP)
+        ON CONFLICT(id) DO UPDATE SET
+            profile = excluded.profile,
+            observation_count = excluded.observation_count,
+            updated_at = CURRENT_TIMESTAMP
+        """,
+        (json.dumps(profile), observation_count)
     )
 
     connection.commit()

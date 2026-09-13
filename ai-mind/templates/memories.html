@@ -34,6 +34,7 @@ button,input,select{font:inherit}
 .saved{padding:17px}.saved-top{display:flex;justify-content:space-between;gap:12px}.saved .memory-text{font-size:13px}.confidence{color:var(--muted2);font-size:10px;white-space:nowrap}.saved-actions{display:flex;gap:7px;margin-top:15px}
 .edit-form{margin-top:13px;padding-top:13px;border-top:1px solid var(--border)}.edit-form textarea{width:100%;min-height:80px;resize:vertical;padding:10px;border:1px solid #343a44;border-radius:8px;background:#0f1115;color:var(--text);outline:none;font-size:12px;line-height:1.5}.edit-row{display:grid;grid-template-columns:1fr 120px;gap:8px;margin-top:8px}.edit-row select,.edit-row input{width:100%;height:34px;padding:0 9px;border:1px solid #343a44;border-radius:8px;background:#0f1115;color:var(--text);outline:none;font-size:11px}.edit-actions{display:flex;gap:7px;margin-top:8px}
 .empty{padding:30px;text-align:center;color:var(--muted);font-size:13px}.loading{color:var(--muted);font-size:13px;padding:15px 2px}.error{padding:14px;border:1px solid #513137;border-radius:10px;background:#211418;color:#e8a4aa;font-size:12px}
+.style-card{padding:18px}.style-header{display:flex;justify-content:space-between;gap:16px;align-items:start}.style-copy{color:var(--muted);font-size:12px;line-height:1.5;margin:5px 0 0}.style-count{color:var(--muted2);font-size:11px;white-space:nowrap}.style-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:15px}.style-field{display:grid;gap:5px}.style-field label{color:var(--muted);font-size:11px}.style-field input{width:100%;height:34px;padding:0 9px;border:1px solid #343a44;border-radius:8px;background:#0f1115;color:var(--text);outline:none;font-size:12px}.style-actions{display:flex;gap:8px;margin-top:15px}@media(max-width:600px){.style-grid{grid-template-columns:1fr}}
 @media(max-width:800px){.sidebar{display:none}.header{padding:28px 18px 16px}.content{padding:0 18px 40px}.saved-grid{grid-template-columns:1fr}.title{font-size:24px}}
 </style>
 </head>
@@ -58,6 +59,21 @@ button,input,select{font:inherit}
   </header>
 
   <div class="content">
+    <section class="section">
+      <div class="section-header"><div class="section-title">Communication style</div></div>
+      <div class="card style-card">
+        <div class="style-header">
+          <div><div class="style-copy">Preferences learned from repeated conversations. This stays separate from factual memories.</div></div>
+          <div class="style-count" id="style-count"></div>
+        </div>
+        <div id="style-fields"><div class="loading">Loading communication style...</div></div>
+        <div class="style-actions">
+          <button class="btn primary" id="save-style">Save style</button>
+          <button class="btn danger" id="reset-style">Reset</button>
+        </div>
+      </div>
+    </section>
+
     <section class="section">
       <div class="section-header"><div class="section-title">Potential memories</div><div class="section-count" id="candidate-count"></div></div>
       <div id="candidates"><div class="loading">Looking for useful memories...</div></div>
@@ -93,6 +109,17 @@ const typeOptions = [
   ["general","General"]
 ];
 
+const styleLabels = {
+  response_length: "Response length",
+  technical_detail: "Technical detail",
+  tone: "Tone",
+  prefers_step_by_step: "Prefers step-by-step",
+  prefers_examples: "Prefers examples",
+  avoids_unnecessary_questions: "Avoids unnecessary questions"
+};
+
+let styleProfile = {};
+
 function esc(value) {
   const div = document.createElement("div");
   div.textContent = value ?? "";
@@ -102,6 +129,76 @@ function esc(value) {
 function label(type) {
   return typeLabels[type] || type || "General";
 }
+
+function styleLabel(key) {
+  return styleLabels[key] || key.replaceAll("_", " ").replace(/^[a-z]/, value => value.toUpperCase());
+}
+
+function renderStyle(profile) {
+  const container = document.getElementById("style-fields");
+  const entries = Object.entries(profile);
+  document.getElementById("style-count").textContent =
+    `${entries.length} ${entries.length === 1 ? "preference" : "preferences"}`;
+
+  if (!entries.length) {
+    container.innerHTML = '<div class="empty">No communication preferences learned yet.</div>';
+    return;
+  }
+
+  container.innerHTML = `<div class="style-grid">${entries.map(([key, value]) => `
+    <div class="style-field">
+      <label for="style-${esc(key)}">${esc(styleLabel(key))}</label>
+      <input id="style-${esc(key)}" data-style-key="${esc(key)}" value="${esc(String(value))}">
+    </div>
+  `).join("")}</div>`;
+}
+
+async function loadStyle() {
+  try {
+    const response = await fetch("/api/communication-style");
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Failed to load communication style.");
+    styleProfile = data.profile || {};
+    renderStyle(styleProfile);
+  } catch (error) {
+    document.getElementById("style-fields").innerHTML = `<div class="error">${esc(error.message)}</div>`;
+  }
+}
+
+document.getElementById("save-style").onclick = async () => {
+  const profile = {};
+  document.querySelectorAll("[data-style-key]").forEach(input => {
+    const value = input.value.trim();
+    if (value) profile[input.dataset.styleKey] = value;
+  });
+
+  try {
+    const response = await fetch("/api/communication-style", {
+      method: "PUT",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({profile})
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Failed to save communication style.");
+    styleProfile = data.profile || {};
+    renderStyle(styleProfile);
+  } catch (error) {
+    alert(error.message);
+  }
+};
+
+document.getElementById("reset-style").onclick = async () => {
+  if (!confirm("Reset the learned communication style?")) return;
+  try {
+    const response = await fetch("/api/communication-style", {method: "DELETE"});
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Failed to reset communication style.");
+    styleProfile = data.profile || {};
+    renderStyle(styleProfile);
+  } catch (error) {
+    alert(error.message);
+  }
+};
 
 async function loadCandidates() {
   const container = document.getElementById("candidates");
@@ -334,10 +431,10 @@ function showEditForm(card, memory) {
 }
 
 document.getElementById("refresh").onclick = async () => {
-  await Promise.all([loadCandidates(), loadSaved()]);
+  await Promise.all([loadStyle(), loadCandidates(), loadSaved()]);
 };
 
-Promise.all([loadCandidates(), loadSaved()]);
+Promise.all([loadStyle(), loadCandidates(), loadSaved()]);
 </script>
 </body>
 </html>

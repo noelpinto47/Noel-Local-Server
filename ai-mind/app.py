@@ -21,6 +21,8 @@ from database import (
     memory_exists,
     get_ai_status,
     save_ai_status,
+    get_communication_style,
+    update_communication_style,
 )
 
 load_dotenv()
@@ -222,6 +224,105 @@ Conversation:
         print("Memory extraction error:", e)
         return []
 
+
+def extract_communication_style(messages, current_profile):
+    """Extract repeated communication preferences, never factual memories."""
+
+    conversation_text = "\n".join(
+        f"{message['role']}: {message['content']}"
+        for message in messages
+    )
+
+    prompt = f"""
+Analyze this conversation only for the user's communication preferences.
+Return preferences about how the assistant should respond, not facts about
+the user, their projects, identity, or life.
+
+Only return a preference when it is explicitly stated or supported by at
+least two conversational signals. Ignore one-off requests and preferences
+that are uncertain. Existing preferences may be confirmed or changed only
+when the conversation provides strong repeated evidence.
+
+Use stable keys such as response_length, technical_detail, tone,
+prefers_step_by_step, prefers_examples, and avoids_unnecessary_questions.
+Return ONLY valid JSON:
+{{
+  "observations": [
+    {{"key": "response_length", "value": "concise", "confidence": 0.9,
+     "evidence_count": 2, "explicit": false}}
+  ]
+}}
+
+Existing style profile:
+{json.dumps(current_profile)}
+
+Conversation:
+{conversation_text}
+"""
+
+    try:
+        response = client.chat.completions.create(
+            model=MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=400
+        )
+        content = response.choices[0].message.content
+
+        if not content:
+            return []
+
+        content = content.strip()
+        if content.startswith("```"):
+            content = content.replace("```json", "", 1)
+            content = content.replace("```", "", 1).strip()
+
+        observations = json.loads(content).get("observations", [])
+        valid = []
+
+        for observation in observations:
+            key = observation.get("key", "").strip()
+            value = observation.get("value")
+            confidence = float(observation.get("confidence", 0))
+            evidence_count = int(observation.get("evidence_count", 0))
+            explicit = bool(observation.get("explicit", False))
+
+            if (
+                key
+                and value is not None
+                and confidence >= 0.75
+                and (explicit or evidence_count >= 2)
+            ):
+                valid.append({"key": key, "value": value})
+
+        return valid
+    except Exception as e:
+        print("Communication style extraction error:", e)
+        return []
+
+
+def learn_communication_style(messages):
+    """Update style only periodically, after enough user messages exist."""
+
+    user_message_count = sum(message["role"] == "user" for message in messages)
+
+    if user_message_count < 3 or user_message_count % 3 != 0:
+        return
+
+    style = get_communication_style()
+    observations = extract_communication_style(messages, style["profile"])
+
+    if not observations:
+        return
+
+    profile = dict(style["profile"])
+    for observation in observations:
+        profile[observation["key"]] = observation["value"]
+
+    update_communication_style(
+        profile,
+        style["observation_count"] + len(observations)
+    )
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -256,6 +357,7 @@ def chat():
 
         # Get approved long-term memories
         memories = get_memories()
+        communication_style = get_communication_style()["profile"]
 
         # Build memory context
         memory_text = ""
@@ -264,6 +366,13 @@ def chat():
             memory_text = "\n".join(
                 f"- {memory['content']}"
                 for memory in memories
+            )
+
+        style_text = ""
+        if communication_style:
+            style_text = "\n".join(
+                f"- {key.replace('_', ' ').capitalize()}: {value}"
+                for key, value in communication_style.items()
             )
 
         system_message = """
@@ -278,6 +387,12 @@ long-term memory about the user:
 
 Use these memories when they are relevant to the user's question.
 
+The following communication style preferences were learned from repeated
+conversation patterns. Use them when appropriate, but do not mention them
+or treat them as factual memories:
+
+{style_text}
+
 Do not mention the memory system or say that you are retrieving
 memories unless the user explicitly asks about it.
 
@@ -285,7 +400,10 @@ Do not invent additional facts about the user.
 """.format(
             memory_text=memory_text
             if memory_text
-            else "No saved memories yet."
+            else "No saved memories yet.",
+            style_text=style_text
+            if style_text
+            else "No learned communication preferences yet."
         )
 
         # Send system instructions + conversation to OpenRouter
@@ -317,6 +435,8 @@ Do not invent additional facts about the user.
             "assistant",
             content
         )
+
+        learn_communication_style(messages + [{"role": "assistant", "content": content}])
 
         return jsonify({
             "conversation_id": conversation_id,
@@ -382,6 +502,36 @@ def get_all_memories():
 @app.route("/memories")
 def memory_page():
     return render_template("memories.html")
+
+
+@app.route("/api/communication-style", methods=["GET"])
+def communication_style():
+    return jsonify(get_communication_style())
+
+
+@app.route("/api/communication-style", methods=["PUT"])
+def save_communication_style():
+    data = request.get_json() or {}
+    profile = data.get("profile")
+
+    if not isinstance(profile, dict):
+        return jsonify({"error": "Style profile must be an object."}), 400
+
+    cleaned_profile = {
+        str(key).strip(): value
+        for key, value in profile.items()
+        if str(key).strip() and value is not None and value != ""
+    }
+    current = get_communication_style()
+    update_communication_style(cleaned_profile, current["observation_count"])
+
+    return jsonify(get_communication_style())
+
+
+@app.route("/api/communication-style", methods=["DELETE"])
+def reset_communication_style():
+    update_communication_style({}, 0)
+    return jsonify(get_communication_style())
 
 @app.route("/api/memory-candidates/<int:conversation_id>", methods=["GET"])
 def memory_candidates(conversation_id):

@@ -1,69 +1,284 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark" data-font="medium" data-width="comfortable">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a0c0e">
+<meta name="color-scheme" content="dark light">
 <title>AI Mind</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%230a0c0e'/%3E%3Cpath fill='%23fff' d='M12 4c.6 4.4 3.2 7 8 8-4.8 1-7.4 3.6-8 8-.6-4.4-3.2-7-8-8 4.8-1 7.4-3.6 8-8z'/%3E%3C/svg%3E">
+<script>
+/* Apply the saved theme before first paint to avoid a flash. */
+(function () {
+  try {
+    var pref = localStorage.getItem("ai-mind-theme") || "system";
+    var light = pref === "light" || (pref === "system" && window.matchMedia("(prefers-color-scheme: light)").matches);
+    document.documentElement.dataset.theme = light ? "light" : "dark";
+  } catch (e) {}
+})();
+</script>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 </head>
 <body>
-<div class="app-shell">
-<aside class="sidebar">
-  <div class="brand"><div class="brand-mark">✦</div><div><div class="brand-name">AI Mind</div><div class="brand-subtitle">Personal assistant</div></div></div>
-  <button id="new-chat" class="new-chat"><span>＋</span><span>New chat</span></button>
-  <section class="history-panel" aria-label="Chat history">
-    <div class="history-heading"><span>Chats</span><span id="history-count" class="history-count"></span></div>
-    <div class="history-tools">
-      <input id="history-search" class="history-search" type="search" placeholder="Search chats" aria-label="Search chats">
+<a class="skip-link" href="#message-input">Skip to message box</a>
+
+<!-- Icon sprite. Icons are referenced as <svg class="ico"><use href="#i-name"/></svg> -->
+<svg class="sprite" width="0" height="0" aria-hidden="true" focusable="false">
+  <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3c.7 5.2 3.8 8.3 9 9-5.2.7-8.3 3.8-9 9-.7-5.2-3.8-8.3-9-9 5.2-.7 8.3-3.8 9-9z" fill="currentColor" stroke-width="1.2"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4-4"/></symbol>
+  <symbol id="i-sidebar" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="15" rx="3"/><path d="M9.5 4.5v15"/></symbol>
+  <symbol id="i-layout" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="15" rx="3"/><path d="M14.5 4.5v15"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2.5 12h2M19.5 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></symbol>
+  <symbol id="i-monitor" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="12" rx="2"/><path d="M8 20h8M12 16.5V20"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8.5" y="8.5" width="11" height="11" rx="2.5"/><path d="M15.5 8.5v-2a2 2 0 0 0-2-2h-7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M19.5 12a7.5 7.5 0 0 1-13.2 4.9M4.5 12a7.5 7.5 0 0 1 13.2-4.9"/><path d="M18 3.5v4h-4M6 20.5v-4h4"/></symbol>
+  <symbol id="i-thumb" viewBox="0 0 24 24"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88z"/></symbol>
+  <symbol id="i-volume" viewBox="0 0 24 24"><path d="M11 5 6.5 9h-3v6h3L11 19z"/><path d="M15 9.5a4 4 0 0 1 0 5M17.8 6.8a8 8 0 0 1 0 10.4"/></symbol>
+  <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/><path d="m15 5 4 4"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3.5 6h17"/><path d="M18.5 6v14a2 2 0 0 1-2 2h-9a2 2 0 0 1-2-2V6"/><path d="M8.5 6V4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v2"/><path d="M10 11v6M14 11v6"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5.5" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="18.5" cy="12" r="1.4" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></symbol>
+  <symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="M12 19V6M6.5 11.5 12 6l5.5 5.5"/></symbol>
+  <symbol id="i-arrow-down" viewBox="0 0 24 24"><path d="M12 5v13M6.5 12.5 12 18l5.5-5.5"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6.5" y="6.5" width="11" height="11" rx="2.5" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-paperclip" viewBox="0 0 24 24"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18 14 14 0 0 1 0-18z"/></symbol>
+  <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6M10 21.5h4"/></symbol>
+  <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 15V4M8 8l4-4 4 4"/><path d="M5 12v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="m20.5 16-4.5-4.5L8 19.5"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3.5 7.5a2 2 0 0 1 2-2H9l2 2.2h7.5a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/></symbol>
+  <symbol id="i-archive" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="4" rx="1.2"/><path d="M5 8.5V18a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 18V8.5M10 12.5h4"/></symbol>
+  <symbol id="i-code" viewBox="0 0 24 24"><path d="m8 8-4.5 4L8 16M16 8l4.5 4L16 16M13.5 5 10.5 19"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M12 6.5C10 5 7 4.5 4 5v13c3-.5 6 0 8 1.5 2-1.5 5-2 8-1.5V5c-3-.5-6 0-8 1.5zM12 6.5v13"/></symbol>
+  <symbol id="i-keyboard" viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2.5"/><path d="M6.5 10h.01M10 10h.01M14 10h.01M17.5 10h.01M7.5 14h9"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4 3 19.5h18z"/><path d="M12 10v4.5M12 17h.01"/></symbol>
+  <symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></symbol>
+  <symbol id="i-print" viewBox="0 0 24 24"><path d="M7 9V4h10v5"/><rect x="3.5" y="9" width="17" height="8" rx="2"/><path d="M7 14h10v6H7z"/></symbol>
+  <symbol id="i-zap" viewBox="0 0 24 24"><path d="M13 3 5 13.5h6L10 21l8-10.5h-6z"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M5.5 5h13a2 2 0 0 1 2 2v8.5a2 2 0 0 1-2 2H11l-4.5 3v-3h-1a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/></symbol>
+</svg>
+
+<div class="app-shell" id="app-shell">
+
+  <!-- ============================ Sidebar ============================ -->
+  <aside class="sidebar" id="sidebar" aria-label="Sidebar">
+    <div class="sidebar-head">
+      <div class="brand">
+        <div class="brand-mark"><svg class="ico"><use href="#i-sparkle"/></svg></div>
+        <div class="brand-text">
+          <div class="brand-name">AI Mind</div>
+          <div class="brand-subtitle">Personal assistant</div>
+        </div>
+      </div>
+      <button type="button" id="sidebar-collapse" class="icon-button sidebar-collapse" title="Hide sidebar" aria-label="Hide sidebar">
+        <svg class="ico"><use href="#i-sidebar"/></svg>
+      </button>
     </div>
-    <div id="conversation-list" class="conversation-list" aria-live="polite"></div>
-  </section>
-  <nav class="sidebar-nav">
-    <a href="/" class="nav-item active"><span>◈</span><span>Chat</span></a>
-    <a href="/memories" class="nav-item"><span>✦</span><span>Memories</span></a>
-  </nav>
-  <div class="sidebar-bottom"><div class="connection"><span class="connection-dot"></span><div><div class="connection-title">Local server</div><div class="connection-subtitle">Connected</div></div></div></div>
-</aside>
 
-<main class="chat-layout">
-<header class="topbar">
-  <div class="topbar-title">
-    <div class="mobile-brand-mark">✦</div>
-    <div><div class="chat-title" id="chat-title">New conversation</div><div class="model-label">Personal AI Mind</div></div>
-  </div>
-  <div class="topbar-actions">
-    <button id="mobile-history" class="mobile-history-button" type="button" title="Show chat history" aria-label="Show chat history">☷</button>
-    <button id="theme-toggle" class="theme-toggle" type="button" title="Switch to light mode" aria-label="Switch to light mode">☼</button>
-    <a href="/memories" class="topbar-button" title="Manage memories">✦</a>
-  </div>
-</header>
+    <button type="button" id="new-chat" class="new-chat">
+      <svg class="ico"><use href="#i-plus"/></svg>
+      <span class="new-chat-label">New chat</span>
+      <span class="kbd" data-kbd="mod+shift+o"></span>
+    </button>
 
-<section id="chat" class="chat">
-  <div id="welcome" class="welcome">
-    <div class="welcome-mark">✦</div>
-    <h1>How can I help?</h1>
-    <p>Your personal AI, with your conversations and approved memories.</p>
-    <div class="suggestions">
-      <button class="suggestion" data-prompt="Explain something I'm working on"><span>⌁</span><span>Explain something I'm working on</span></button>
-      <button class="suggestion" data-prompt="Help me plan a project"><span>◇</span><span>Help me plan a project</span></button>
-      <button class="suggestion" data-prompt="Help me solve a technical problem"><span>⌘</span><span>Help me solve a technical problem</span></button>
+    <nav class="sidebar-nav" aria-label="Main">
+      <a href="/memories" class="nav-item" id="nav-memories">
+        <svg class="ico"><use href="#i-sparkle"/></svg><span>Memories</span>
+      </a>
+      <button type="button" class="nav-item" data-feature="projects">
+        <svg class="ico"><use href="#i-folder"/></svg><span>Projects</span>
+      </button>
+      <button type="button" class="nav-item" data-feature="promptLibrary">
+        <svg class="ico"><use href="#i-book"/></svg><span>Prompt library</span>
+      </button>
+    </nav>
+
+    <section class="history-panel" aria-label="Chat history">
+      <div class="history-heading"><span>Chats</span><span id="history-count" class="history-count"></span></div>
+      <div class="history-tools">
+        <svg class="ico history-search-icon"><use href="#i-search"/></svg>
+        <input id="history-search" class="history-search" type="search" placeholder="Search chats" aria-label="Search chats" autocomplete="off">
+      </div>
+      <div id="conversation-list" class="conversation-list" aria-live="polite"></div>
+    </section>
+
+    <div class="sidebar-bottom">
+      <button type="button" id="profile-button" class="profile" aria-haspopup="menu" aria-expanded="false">
+        <span class="avatar" id="profile-avatar">N</span>
+        <span class="profile-text">
+          <span class="profile-name" id="profile-name">You</span>
+          <span class="connection"><span class="connection-dot" id="connection-dot"></span><span class="connection-text" id="connection-text">Connected to local server</span></span>
+        </span>
+      </button>
+      <button type="button" id="open-settings" class="icon-button" title="Settings" aria-label="Settings">
+        <svg class="ico"><use href="#i-sliders"/></svg>
+      </button>
     </div>
-  </div>
-  <div id="messages" class="messages"></div>
-</section>
+  </aside>
+  <button type="button" id="history-backdrop" class="history-backdrop" aria-label="Close sidebar"></button>
 
-<div class="composer-area">
-<form id="chat-form" class="composer">
-  <textarea id="message-input" rows="1" placeholder="Message your AI Mind..." autocomplete="off"></textarea>
-  <button id="send-button" class="send-button" type="submit" aria-label="Send message"><span>↑</span></button>
-</form>
-<div class="composer-hint"><span>Enter to send</span><span>•</span><span>Shift + Enter for a new line</span></div>
+  <!-- ============================== Main ============================== -->
+  <main class="chat-layout" id="chat-layout">
+    <header class="topbar">
+      <div class="topbar-title">
+        <button type="button" id="mobile-history" class="icon-button sidebar-toggle" title="Show sidebar" aria-label="Show sidebar" aria-controls="sidebar" aria-expanded="true">
+          <svg class="ico"><use href="#i-sidebar"/></svg>
+        </button>
+        <button type="button" id="chat-title" class="chat-title" title="Rename chat">New chat</button>
+      </div>
+      <div class="topbar-actions">
+        <button type="button" id="share-button" class="topbar-button with-label" data-feature="share" title="Share chat">
+          <svg class="ico"><use href="#i-share"/></svg><span>Share</span>
+        </button>
+        <button type="button" id="chat-menu-button" class="topbar-button" title="Chat options" aria-label="Chat options" aria-haspopup="menu" aria-expanded="false">
+          <svg class="ico"><use href="#i-more"/></svg>
+        </button>
+        <button type="button" id="theme-toggle" class="theme-toggle" title="Switch to light mode" aria-label="Switch to light mode">
+          <svg class="ico"><use href="#i-sun"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="chat-body">
+      <div class="chat-column">
+        <section id="chat" class="chat is-empty" aria-label="Conversation">
+          <div id="welcome" class="welcome">
+            <div class="welcome-mark"><svg class="ico"><use href="#i-sparkle"/></svg></div>
+            <h1 id="welcome-title">How can I help?</h1>
+            <p>Your personal AI, with your conversations and approved memories.</p>
+            <div class="suggestions">
+              <button type="button" class="suggestion" data-prompt="Explain something I'm working on: ">
+                <svg class="ico"><use href="#i-book"/></svg><span>Explain something I'm working on</span>
+              </button>
+              <button type="button" class="suggestion" data-prompt="Help me plan a project: ">
+                <svg class="ico"><use href="#i-list"/></svg><span>Help me plan a project</span>
+              </button>
+              <button type="button" class="suggestion" data-prompt="Help me solve a technical problem: ">
+                <svg class="ico"><use href="#i-code"/></svg><span>Help me solve a technical problem</span>
+              </button>
+              <button type="button" class="suggestion" data-prompt="Make this clearer and more concise:&#10;&#10;">
+                <svg class="ico"><use href="#i-pencil"/></svg><span>Improve something I've written</span>
+              </button>
+            </div>
+          </div>
+          <div id="messages" class="messages"></div>
+        </section>
+
+        <div class="composer-area">
+          <button type="button" id="scroll-bottom" class="scroll-bottom" title="Jump to latest" aria-label="Jump to latest message" hidden>
+            <svg class="ico"><use href="#i-arrow-down"/></svg>
+          </button>
+          <div id="slash-menu" class="slash-menu" role="listbox" aria-label="Prompt templates" hidden></div>
+          <form id="chat-form" class="composer" autocomplete="off">
+            <div id="attachment-tray" class="attachment-tray" hidden></div>
+            <label class="sr-only" for="message-input">Message AI Mind</label>
+            <textarea id="message-input" rows="1" placeholder="Message AI Mind" enterkeyhint="send" aria-autocomplete="list"></textarea>
+            <div class="composer-bar">
+              <div class="composer-left">
+                <button type="button" id="tools-button" class="composer-icon" title="Add files and tools" aria-label="Add files and tools" aria-haspopup="menu" aria-expanded="false">
+                  <svg class="ico"><use href="#i-plus"/></svg>
+                </button>
+                <button type="button" id="toggle-search" class="chip" data-feature="webSearch" title="Search the web" aria-pressed="false">
+                  <svg class="ico"><use href="#i-globe"/></svg><span>Search</span>
+                </button>
+                <button type="button" id="toggle-think" class="chip" data-feature="deepThink" title="Think before answering" aria-pressed="false">
+                  <svg class="ico"><use href="#i-bulb"/></svg><span>Think</span>
+                </button>
+                <span id="mode-chip" class="chip active" hidden></span>
+              </div>
+              <div class="composer-right">
+                <span id="token-hint" class="token-hint" hidden></span>
+                <button type="button" id="model-button" class="model-button" title="Choose model" aria-haspopup="menu" aria-expanded="false">
+                  <span id="model-label">Auto</span><svg class="ico"><use href="#i-chevron-down"/></svg>
+                </button>
+                <button type="button" id="mic-button" class="composer-icon" title="Dictate" aria-label="Dictate" aria-pressed="false">
+                  <svg class="ico"><use href="#i-mic"/></svg>
+                </button>
+                <button type="submit" id="send-button" class="send-button" title="Send message" aria-label="Send message" disabled>
+                  <svg class="ico"><use href="#i-arrow-up"/></svg>
+                </button>
+              </div>
+            </div>
+          </form>
+          <div class="composer-hint">
+            <span id="composer-key-hint">Enter to send, Shift + Enter for a new line</span>
+            <span>AI Mind can make mistakes. Check important details.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Side panel: HTML/SVG preview and file viewer -->
+      <aside id="panel" class="panel" aria-label="Preview panel" hidden>
+        <header class="panel-head">
+          <div class="panel-title" id="panel-title">Preview</div>
+          <div class="segmented panel-tabs" id="panel-tabs" role="tablist" aria-label="Panel view">
+            <button type="button" class="segment" role="tab" id="panel-tab-preview" aria-selected="true">Preview</button>
+            <button type="button" class="segment" role="tab" id="panel-tab-code" aria-selected="false">Code</button>
+          </div>
+          <div class="panel-actions">
+            <button type="button" id="panel-copy" class="icon-button" title="Copy" aria-label="Copy"><svg class="ico"><use href="#i-copy"/></svg></button>
+            <button type="button" id="panel-download" class="icon-button" title="Download" aria-label="Download"><svg class="ico"><use href="#i-download"/></svg></button>
+            <button type="button" id="panel-close" class="icon-button" title="Close panel" aria-label="Close panel"><svg class="ico"><use href="#i-x"/></svg></button>
+          </div>
+        </header>
+        <div class="panel-body">
+          <iframe id="panel-frame" title="Preview" sandbox="allow-scripts" referrerpolicy="no-referrer"></iframe>
+          <pre id="panel-code" class="panel-code" hidden><code></code></pre>
+        </div>
+      </aside>
+    </div>
+  </main>
 </div>
-</main>
+
+<!-- ============================ Overlays ============================ -->
+<input type="file" id="file-input" multiple hidden>
+
+<div id="drop-overlay" class="drop-overlay" hidden>
+  <div class="drop-card">
+    <svg class="ico"><use href="#i-paperclip"/></svg>
+    <strong>Drop files to attach</strong>
+    <span>Text and code files up to 200 KB</span>
+  </div>
 </div>
-<button id="history-backdrop" class="history-backdrop" type="button" aria-label="Close chat history"></button>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
-<script src="{{ url_for('static', filename='app.js') }}"></script>
+
+<dialog id="palette-dialog" class="dialog palette" aria-label="Search chats and actions">
+  <div class="palette-search">
+    <svg class="ico"><use href="#i-search"/></svg>
+    <input id="palette-input" type="text" placeholder="Search chats and actions" aria-label="Search chats and actions" autocomplete="off" spellcheck="false" role="combobox" aria-expanded="true" aria-controls="palette-list">
+    <span class="kbd">Esc</span>
+  </div>
+  <div id="palette-list" class="palette-list" role="listbox"></div>
+</dialog>
+
+<dialog id="settings-dialog" class="dialog settings" aria-label="Settings"></dialog>
+<dialog id="shortcuts-dialog" class="dialog dialog-md" aria-label="Keyboard shortcuts"></dialog>
+<dialog id="confirm-dialog" class="dialog dialog-sm" aria-label="Confirm"></dialog>
+
+<div id="toasts" class="toasts" aria-live="polite"></div>
+<div id="sr-status" class="sr-only" role="status" aria-live="polite"></div>
+
+<noscript>
+  <div class="noscript">AI Mind needs JavaScript to run. Turn it on in your browser settings and reload.</div>
+</noscript>
+
+<script defer src="https://cdn.jsdelivr.net/npm/marked@15/marked.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets@11.11.1/highlight.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script defer src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
 </html>

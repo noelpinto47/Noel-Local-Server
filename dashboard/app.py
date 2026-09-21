@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify,send_from_directory
 import psutil
 import platform
 import socket
@@ -10,6 +10,14 @@ from datetime import datetime
 
 
 app = Flask(__name__)
+
+@app.route("/favicon.svg")
+def favicon():
+    return send_from_directory(
+        r"C:\server\shared",
+        "favicon.svg",
+        mimetype="image/svg+xml"
+    )
 
 
 # ============================================================

@@ -3,8 +3,12 @@ import json
 import time
 
 from flask import Flask, render_template, request, jsonify
+from ai_router import ai_router
 from dotenv import load_dotenv
-from openai import OpenAI
+from memory_engine import schedule_memory_processing
+from memory_retrieval import retrieve_relevant_memories
+from conversation_retrieval import retrieve_relevant_conversations
+from conversation_retrieval import format_conversations_for_prompt
 
 from database import (
     init_database,
@@ -29,28 +33,33 @@ from database import (
     update_communication_style,
 )
 
+
+# ============================================================
+# Configuration
+# ============================================================
+
 load_dotenv()
 
 app = Flask(__name__)
 
 init_database()
 
-client = OpenAI(
-    base_url="https://openrouter.ai/api/v1",
-    api_key=os.getenv("OPENROUTER_API_KEY"),
-    default_headers={
-        "X-OpenRouter-Title": "Noel AI Mind"
-    }
-)
-
-MODEL = os.getenv("AI_MODEL", "openrouter/free")
 MAX_TOKENS = int(os.getenv("AI_MAX_TOKENS", "800"))
 
 AI_STATUS = get_ai_status()
 
+
+# ============================================================
+# Legacy AI status handling
+# ============================================================
+
 def update_ai_rate_limit_status(error):
     """
-    Store OpenRouter rate-limit information from a 429 error.
+    Store AI rate-limit information.
+
+    This keeps compatibility with the existing ai_status database
+    table. Provider-specific health information is handled by
+    ai_router.
     """
 
     global AI_STATUS
@@ -65,16 +74,12 @@ def update_ai_rate_limit_status(error):
         AI_STATUS["status"] = "Rate Limited"
         AI_STATUS["last_error"] = error_text
 
-        # The OpenRouter error contains the reset timestamp.
-        # Example:
-        # X-RateLimit-Reset: 1789257600000
-
+        # Try to extract reset timestamp if the provider exposes it.
         marker = "X-RateLimit-Reset"
 
         if marker in error_text:
             reset_part = error_text.split(marker, 1)[1]
 
-            # Extract the first large integer after the marker.
             import re
 
             match = re.search(r"\d{10,}", reset_part)
@@ -106,7 +111,7 @@ def update_ai_rate_limit_status(error):
 
             if match:
                 AI_STATUS["remaining"] = int(match.group(0))
-        
+
         save_ai_status(
             AI_STATUS["available"],
             AI_STATUS["status"],
@@ -118,6 +123,11 @@ def update_ai_rate_limit_status(error):
 
     except Exception as e:
         print("AI status tracking error:", e)
+
+
+# ============================================================
+# Memory extraction
+# ============================================================
 
 def extract_memory_candidates(messages):
     """
@@ -175,8 +185,7 @@ Conversation:
 """
 
     try:
-        response = client.chat.completions.create(
-            model=MODEL,
+        result = ai_router.chat(
             messages=[
                 {
                     "role": "user",
@@ -186,7 +195,7 @@ Conversation:
             max_tokens=500
         )
 
-        content = response.choices[0].message.content
+        content = result["content"]
 
         if not content:
             return []
@@ -200,9 +209,9 @@ Conversation:
             content = content.strip()
 
         # Convert JSON string into a Python object
-        result = json.loads(content)
+        result_json = json.loads(content)
 
-        candidates = result.get("memories", [])
+        candidates = result_json.get("memories", [])
 
         # Remove memories that have already been ignored
         filtered_candidates = []
@@ -211,14 +220,14 @@ Conversation:
             candidate_content = candidate.get("content", "").strip()
 
             if not candidate_content:
-               continue
+                continue
 
             if is_memory_ignored(candidate_content):
-               continue
+                continue
 
             # Also don't suggest something that is already saved
             if memory_exists(candidate_content):
-               continue
+                continue
 
             filtered_candidates.append(candidate)
 
@@ -228,6 +237,10 @@ Conversation:
         print("Memory extraction error:", e)
         return []
 
+
+# ============================================================
+# Communication style extraction
+# ============================================================
 
 def extract_communication_style(messages, current_profile):
     """Extract repeated communication preferences, never factual memories."""
@@ -249,7 +262,9 @@ when the conversation provides strong repeated evidence.
 
 Use stable keys such as response_length, technical_detail, tone,
 prefers_step_by_step, prefers_examples, and avoids_unnecessary_questions.
+
 Return ONLY valid JSON:
+
 {{
   "observations": [
     {{"key": "response_length", "value": "concise", "confidence": 0.9,
@@ -265,22 +280,29 @@ Conversation:
 """
 
     try:
-        response = client.chat.completions.create(
-            model=MODEL,
-            messages=[{"role": "user", "content": prompt}],
+        result = ai_router.chat(
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
             max_tokens=400
         )
-        content = response.choices[0].message.content
+
+        content = result["content"]
 
         if not content:
             return []
 
         content = content.strip()
+
         if content.startswith("```"):
             content = content.replace("```json", "", 1)
             content = content.replace("```", "", 1).strip()
 
         observations = json.loads(content).get("observations", [])
+
         valid = []
 
         for observation in observations:
@@ -296,29 +318,45 @@ Conversation:
                 and confidence >= 0.75
                 and (explicit or evidence_count >= 2)
             ):
-                valid.append({"key": key, "value": value})
+                valid.append({
+                    "key": key,
+                    "value": value
+                })
 
         return valid
+
     except Exception as e:
         print("Communication style extraction error:", e)
         return []
 
 
+# ============================================================
+# Communication style learning
+# ============================================================
+
 def learn_communication_style(messages):
     """Update style only periodically, after enough user messages exist."""
 
-    user_message_count = sum(message["role"] == "user" for message in messages)
+    user_message_count = sum(
+        message["role"] == "user"
+        for message in messages
+    )
 
     if user_message_count < 3 or user_message_count % 3 != 0:
         return
 
     style = get_communication_style()
-    observations = extract_communication_style(messages, style["profile"])
+
+    observations = extract_communication_style(
+        messages,
+        style["profile"]
+    )
 
     if not observations:
         return
 
     profile = dict(style["profile"])
+
     for observation in observations:
         profile[observation["key"]] = observation["value"]
 
@@ -327,14 +365,23 @@ def learn_communication_style(messages):
         style["observation_count"] + len(observations)
     )
 
+
+# ============================================================
+# Main page
+# ============================================================
+
 @app.route("/")
 def index():
     return render_template("index.html")
 
 
+# ============================================================
+# Chat
+# ============================================================
+
 @app.route("/api/chat", methods=["POST"])
 def chat():
-    data = request.get_json()
+    data = request.get_json() or {}
 
     conversation_id = data.get("conversation_id")
     message = data.get("message", "").strip()
@@ -347,27 +394,54 @@ def chat():
     # Create a conversation if one doesn't exist
     if not conversation_id:
         conversation_id = create_conversation()
+
     elif not get_conversation(conversation_id):
         return jsonify({
             "error": "Conversation not found"
         }), 404
 
     try:
+        # ----------------------------------------------------
         # Save user's message
+        # ----------------------------------------------------
+
         add_message(
             conversation_id,
             "user",
             message
         )
 
+        # ----------------------------------------------------
         # Get conversation history
+        # ----------------------------------------------------
+
         messages = get_messages(conversation_id)
 
+        # ----------------------------------------------------
         # Get approved long-term memories
-        memories = get_memories()
+        # ----------------------------------------------------
+
+        memories = retrieve_relevant_memories(message)
+
+        # ----------------------------------------------------
+        # Retrieve relevant context from previous conversations
+        # ----------------------------------------------------
+        previous_conversations = retrieve_relevant_conversations(
+            message,
+            current_conversation_id=conversation_id,
+            limit=3
+        )
+
+        conversation_text = format_conversations_for_prompt(
+            previous_conversations
+        )
+
         communication_style = get_communication_style()["profile"]
 
+        # ----------------------------------------------------
         # Build memory context
+        # ----------------------------------------------------
+
         memory_text = ""
 
         if memories:
@@ -376,13 +450,21 @@ def chat():
                 for memory in memories
             )
 
+        # ----------------------------------------------------
+        # Build communication style context
+        # ----------------------------------------------------
+
         style_text = ""
+
         if communication_style:
             style_text = "\n".join(
                 f"- {key.replace('_', ' ').capitalize()}: {value}"
                 for key, value in communication_style.items()
             )
 
+        # ----------------------------------------------------
+        # System message
+        # ----------------------------------------------------
         system_message = """
 You are Noel's personal AI assistant.
 
@@ -395,6 +477,16 @@ long-term memory about the user:
 
 Use these memories when they are relevant to the user's question.
 
+The following are relevant excerpts from previous conversations.
+They are historical context, not necessarily permanent facts.
+
+{conversation_text}
+
+Use previous conversation context when it is relevant.
+Do not assume that every previous conversation is still current.
+If previous context conflicts with something the user says now,
+prefer the user's current statement.
+
 The following communication style preferences were learned from repeated
 conversation patterns. Use them when appropriate, but do not mention them
 or treat them as factual memories:
@@ -405,16 +497,28 @@ Do not mention the memory system or say that you are retrieving
 memories unless the user explicitly asks about it.
 
 Do not invent additional facts about the user.
-""".format(
-            memory_text=memory_text
-            if memory_text
-            else "No saved memories yet.",
-            style_text=style_text
-            if style_text
-            else "No learned communication preferences yet."
+        """.format(
+            memory_text=(
+                memory_text
+                if memory_text
+                else "No saved memories yet."
+            ),
+            conversation_text=(
+                conversation_text
+                if conversation_text
+                else "No relevant previous conversations found."
+            ),
+            style_text=(
+                style_text
+                if style_text
+                else "No learned communication preferences yet."
+            )
         )
 
-        # Send system instructions + conversation to OpenRouter
+        # ----------------------------------------------------
+        # Send request through AI router
+        # ----------------------------------------------------
+
         messages_for_ai = [
             {
                 "role": "system",
@@ -422,43 +526,94 @@ Do not invent additional facts about the user.
             }
         ] + messages
 
-        response = client.chat.completions.create(
-            model=MODEL,
+        ai_result = ai_router.chat(
             messages=messages_for_ai,
             max_tokens=MAX_TOKENS
         )
 
-        choice = response.choices[0]
-        content = choice.message.content
+        content = ai_result["content"]
 
         if content is None:
             return jsonify({
-                "error": "The model returned no text response.",
-                "finish_reason": choice.finish_reason
+                "error": "The model returned no text response."
             }), 500
 
+        # ----------------------------------------------------
         # Save AI response
+        # ----------------------------------------------------
+
         add_message(
             conversation_id,
             "assistant",
             content
         )
 
-        learn_communication_style(messages + [{"role": "assistant", "content": content}])
+        # Automatically analyze the conversation for long-term memory.
+        # This runs in the background and does not delay the response.
+        schedule_memory_processing(conversation_id)
+
+        # ----------------------------------------------------
+        # Learn communication style
+        # ----------------------------------------------------
+
+        learn_communication_style(
+            messages + [
+                {
+                    "role": "assistant",
+                    "content": content
+                }
+            ]
+        )
+
+        # ----------------------------------------------------
+        # Return response
+        # ----------------------------------------------------
 
         return jsonify({
             "conversation_id": conversation_id,
-            "response": content
+            "response": content,
+
+            # Router metadata
+            "provider": ai_result["provider"],
+            "model": ai_result["model"],
+            "latency_ms": ai_result["latency_ms"],
+            "fallback_used": ai_result["fallback_used"],
+            "attempts": ai_result["attempts"]
         })
 
     except Exception as e:
         update_ai_rate_limit_status(e)
+
         return jsonify({
             "error": str(e)
         }), 500
 
-@app.route("/api/conversation/<int:conversation_id>", methods=["GET"])
+
+# ============================================================
+# Router status
+# ============================================================
+
+@app.route("/api/ai-router/status", methods=["GET"])
+def ai_router_status():
+    """
+    Return the health/status of every configured AI provider.
+    """
+
+    return jsonify({
+        "providers": ai_router.get_status()
+    })
+
+
+# ============================================================
+# Conversation
+# ============================================================
+
+@app.route(
+    "/api/conversation/<int:conversation_id>",
+    methods=["GET"]
+)
 def conversation(conversation_id):
+
     conversation_data = get_conversation(conversation_id)
 
     if not conversation_data:
@@ -479,6 +634,7 @@ def conversation(conversation_id):
 
 @app.route("/api/conversations", methods=["GET"])
 def conversations():
+
     search = request.args.get("search", "")
 
     return jsonify({
@@ -486,10 +642,17 @@ def conversations():
     })
 
 
-@app.route("/api/conversations/<int:conversation_id>", methods=["PATCH"])
+@app.route(
+    "/api/conversations/<int:conversation_id>",
+    methods=["PATCH"]
+)
 def rename_conversation_route(conversation_id):
+
     data = request.get_json() or {}
-    title = " ".join(str(data.get("title", "")).split()).strip()
+
+    title = " ".join(
+        str(data.get("title", "")).split()
+    ).strip()
 
     if not title:
         return jsonify({
@@ -511,8 +674,12 @@ def rename_conversation_route(conversation_id):
     })
 
 
-@app.route("/api/conversations/<int:conversation_id>", methods=["DELETE"])
+@app.route(
+    "/api/conversations/<int:conversation_id>",
+    methods=["DELETE"]
+)
 def delete_conversation_route(conversation_id):
+
     if not delete_conversation(conversation_id):
         return jsonify({
             "error": "Conversation not found"
@@ -523,9 +690,15 @@ def delete_conversation_route(conversation_id):
         "conversation_id": conversation_id
     })
 
+
+# ============================================================
+# Memories
+# ============================================================
+
 @app.route("/api/memories", methods=["POST"])
 def save_memory():
-    data = request.get_json()
+
+    data = request.get_json() or {}
 
     content = data.get("content", "").strip()
     memory_type = data.get("type", "general")
@@ -558,47 +731,85 @@ def save_memory():
         "id": memory_id
     })
 
+
 @app.route("/api/memories", methods=["GET"])
 def get_all_memories():
+
     return jsonify({
         "memories": get_memories()
     })
 
+
 @app.route("/memories")
 def memory_page():
+
     return render_template("memories.html")
 
 
+# ============================================================
+# Communication style
+# ============================================================
+
 @app.route("/api/communication-style", methods=["GET"])
 def communication_style():
-    return jsonify(get_communication_style())
+
+    return jsonify(
+        get_communication_style()
+    )
 
 
 @app.route("/api/communication-style", methods=["PUT"])
 def save_communication_style():
+
     data = request.get_json() or {}
+
     profile = data.get("profile")
 
     if not isinstance(profile, dict):
-        return jsonify({"error": "Style profile must be an object."}), 400
+        return jsonify({
+            "error": "Style profile must be an object."
+        }), 400
 
     cleaned_profile = {
         str(key).strip(): value
         for key, value in profile.items()
-        if str(key).strip() and value is not None and value != ""
+        if (
+            str(key).strip()
+            and value is not None
+            and value != ""
+        )
     }
-    current = get_communication_style()
-    update_communication_style(cleaned_profile, current["observation_count"])
 
-    return jsonify(get_communication_style())
+    current = get_communication_style()
+
+    update_communication_style(
+        cleaned_profile,
+        current["observation_count"]
+    )
+
+    return jsonify(
+        get_communication_style()
+    )
 
 
 @app.route("/api/communication-style", methods=["DELETE"])
 def reset_communication_style():
-    update_communication_style({}, 0)
-    return jsonify(get_communication_style())
 
-@app.route("/api/memory-candidates/<int:conversation_id>", methods=["GET"])
+    update_communication_style({}, 0)
+
+    return jsonify(
+        get_communication_style()
+    )
+
+
+# ============================================================
+# Memory candidates
+# ============================================================
+
+@app.route(
+    "/api/memory-candidates/<int:conversation_id>",
+    methods=["GET"]
+)
 def memory_candidates(conversation_id):
 
     messages = get_messages(conversation_id)
@@ -615,7 +826,14 @@ def memory_candidates(conversation_id):
     })
 
 
-@app.route("/api/memories/<int:memory_id>", methods=["DELETE"])
+# ============================================================
+# Memory management
+# ============================================================
+
+@app.route(
+    "/api/memories/<int:memory_id>",
+    methods=["DELETE"]
+)
 def delete_memory_route(memory_id):
 
     delete_memory(memory_id)
@@ -624,9 +842,14 @@ def delete_memory_route(memory_id):
         "success": True
     })
 
-@app.route("/api/memories/<int:memory_id>", methods=["PUT"])
+
+@app.route(
+    "/api/memories/<int:memory_id>",
+    methods=["PUT"]
+)
 def update_memory_route(memory_id):
-    data = request.get_json()
+
+    data = request.get_json() or {}
 
     content = data.get("content", "").strip()
     memory_type = data.get("type", "general")
@@ -648,9 +871,11 @@ def update_memory_route(memory_id):
         "success": True
     })
 
+
 @app.route("/api/memories/ignore", methods=["POST"])
 def ignore_memory():
-    data = request.get_json()
+
+    data = request.get_json() or {}
 
     content = data.get("content", "").strip()
 
@@ -664,6 +889,11 @@ def ignore_memory():
     return jsonify({
         "success": True
     })
+
+
+# ============================================================
+# Legacy AI status
+# ============================================================
 
 @app.route("/api/ai-status", methods=["GET"])
 def ai_status():
@@ -690,9 +920,15 @@ def ai_status():
 
     return jsonify(AI_STATUS)
 
+
+# ============================================================
+# Application entry point
+# ============================================================
+
 if __name__ == "__main__":
     app.run(
         host="0.0.0.0",
         port=8081,
         debug=False
     )
+

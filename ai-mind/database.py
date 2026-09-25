@@ -11,6 +11,11 @@ def get_connection():
     return connection
 
 
+def _column_exists(connection, table, column):
+    rows = connection.execute(f"PRAGMA table_info({table})").fetchall()
+    return any(row["name"] == column for row in rows)
+
+
 def init_database():
     connection = get_connection()
 
@@ -29,6 +34,7 @@ def init_database():
             conversation_id INTEGER NOT NULL,
             role TEXT NOT NULL,
             content TEXT NOT NULL,
+            metadata TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
             FOREIGN KEY (conversation_id)
@@ -78,6 +84,11 @@ def init_database():
         )
     """)
 
+    # Migration: add metadata column for pre-existing databases created
+    # before this column was introduced. Safe to run on every startup.
+    if not _column_exists(connection, "messages", "metadata"):
+        connection.execute("ALTER TABLE messages ADD COLUMN metadata TEXT")
+
     connection.commit()
     connection.close()
 
@@ -101,19 +112,22 @@ def create_conversation(title="New conversation"):
     return conversation_id
 
 
-def add_message(conversation_id, role, content):
+def add_message(conversation_id, role, content, metadata=None):
     connection = get_connection()
+
+    metadata_json = json.dumps(metadata) if metadata is not None else None
 
     connection.execute(
         """
         INSERT INTO messages (
             conversation_id,
             role,
-            content
+            content,
+            metadata
         )
-        VALUES (?, ?, ?)
+        VALUES (?, ?, ?, ?)
         """,
-        (conversation_id, role, content)
+        (conversation_id, role, content, metadata_json)
     )
 
     connection.execute(
@@ -139,7 +153,7 @@ def get_messages(conversation_id):
 
     rows = connection.execute(
         """
-        SELECT role, content
+        SELECT role, content, metadata
         FROM messages
         WHERE conversation_id = ?
         ORDER BY id ASC
@@ -152,7 +166,8 @@ def get_messages(conversation_id):
     return [
         {
             "role": row["role"],
-            "content": row["content"]
+            "content": row["content"],
+            "metadata": json.loads(row["metadata"]) if row["metadata"] else None
         }
         for row in rows
     ]

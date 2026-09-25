@@ -1019,7 +1019,12 @@ function normalizeMessage(raw) {
     reasoningMs: raw.reasoning_ms || (usage && usage.reasoning_ms) || null,
     sources: normalizeSources(raw.sources),
     followUps: normalizeFollowUps(raw.follow_ups ?? raw.followUps),
-    usage
+    usage,
+    provider: raw.provider || (usage && usage.provider) || null,
+    model: raw.model || (usage && usage.model) || null,
+    latency_ms: raw.latency_ms || (usage && usage.latency_ms) || null,
+    fallback_used: raw.fallback_used || (usage && usage.fallback_used) || null,
+    attempts: raw.attempts || (usage && usage.attempts) || null
   };
 }
 
@@ -1356,6 +1361,18 @@ function syncFollowUps(wrap, message, streaming) {
 }
 
 function syncDetails(node, message) {
+  // Update provider & model badge next to action icons
+  const badge = $(".ai-badge", node);
+  if (badge) {
+    if (message.provider || message.model) {
+      const label = [message.provider, message.model].filter(Boolean).join(" · ");
+      badge.textContent = label;
+      badge.hidden = false;
+    } else {
+      badge.hidden = true;
+    }
+  }
+
   const details = $(".message-details", node);
   if (!details) return;
   details.replaceChildren();
@@ -1398,6 +1415,7 @@ function renderAssistantMessage(message, animate) {
     feedbackAction(message, "down"),
     actionButton({ico: "volume", label: "Read aloud", cls: "act-speak", onClick: button => toggleSpeech(message, button)}),
     actionButton({ico: "refresh", label: "Regenerate", cls: "act-regenerate", feature: "regenerate", onClick: () => regenerate(message)}),
+    h("span", {class: "ai-badge"}),
     h("span", {class: "message-details"}));
   const wrap = h("div", {class: "message-content-wrap"},
     content, actions, h("div", {class: "followups-slot"}), h("div", {class: "stopped-note"}, "Response stopped"));
@@ -1468,7 +1486,9 @@ function normalizeReply(data) {
     sources: normalizeSources(data.sources),
     followUps: normalizeFollowUps(data.follow_ups),
     usage,
-    id: data.message_id ?? null
+    id: data.message_id ?? null,
+    provider: data.provider || null,
+    model: data.model || null
   };
 }
 
@@ -1735,6 +1755,8 @@ async function sendMessage(content, {regenerate = false, editIndex = null, files
     message.followUps = result.followUps;
     message.usage = result.usage;
     message.id = result.id;
+    message.provider = result.provider;
+    message.model = result.model;
 
     if (streamed) {
       cancelRender(node);

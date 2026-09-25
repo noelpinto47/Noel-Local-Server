@@ -545,7 +545,14 @@ Do not invent additional facts about the user.
         add_message(
             conversation_id,
             "assistant",
-            content
+            content,
+            metadata={
+                "provider": ai_result["provider"],
+                "model": ai_result["model"],
+                "latency_ms": ai_result["latency_ms"],
+                "fallback_used": ai_result["fallback_used"],
+                "attempts": ai_result["attempts"]
+            }
         )
 
         # Automatically analyze the conversation for long-term memory.

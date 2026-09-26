@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
@@ -15,393 +14,296 @@
 
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap"
+    rel="stylesheet"
+>
+
 <style>
 
-* {
-    box-sizing: border-box;
-}
-
-body {
-
-    margin: 0;
-
-    font-family:
-        system-ui,
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        sans-serif;
-
-    background: #0f1115;
-
-    color: #f5f5f5;
-}
-
-
-.container {
-
-    max-width: 1200px;
-
-    margin: auto;
-
-    padding: 32px 24px;
-}
-
-
-header {
-
-    display: flex;
-
-    justify-content: space-between;
-
-    align-items: center;
-
-    margin-bottom: 28px;
-}
-
-
-h1 {
-
-    margin: 0;
-
-    font-size: 30px;
-}
-
-
-.subtitle {
-
-    color: #8b8f98;
-
-    margin-top: 5px;
-}
-
-
-.status {
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 8px;
-
-    color: #7ee787;
-}
-
-.header-actions {
-    display: flex;
-    align-items: center;
-    gap: 18px;
-}
-
-.service-button {
-    display: inline-flex;
-    align-items: center;
-    padding: 9px 14px;
-    border-radius: 9px;
-    background: #181b21;
-    border: 1px solid #292d35;
-    color: #f5f5f5;
-    text-decoration: none;
-    font-size: 14px;
-    transition: background 0.2s, border-color 0.2s;
-}
-
-.service-button:hover {
-    background: #22262e;
-    border-color: #3a404b;
-}
-
-.dot {
-
-    width: 9px;
-
-    height: 9px;
-
-    background: #7ee787;
-
-    border-radius: 50%;
-}
-
-
-.grid {
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(auto-fit, minmax(210px, 1fr));
-
-    gap: 16px;
-}
-
-
-.card {
-
-    background: #181b21;
-
-    border: 1px solid #292d35;
-
-    border-radius: 14px;
-
-    padding: 20px;
-}
-
-
-.card-title {
-
-    color: #8b8f98;
-
-    font-size: 13px;
-
-    margin-bottom: 10px;
-
-    text-transform: uppercase;
-
-    letter-spacing: 0.04em;
-}
-
-
-.value {
-
-    font-size: 28px;
-
-    font-weight: 600;
-}
-
-
-.unit {
-
-    font-size: 15px;
-
-    color: #8b8f98;
-}
-
-
-.section {
-
-    margin-top: 24px;
-}
-
-
-.section-title {
-
-    font-size: 18px;
-
-    margin-bottom: 12px;
-}
-
-
-.row {
-
-    display: flex;
-
-    justify-content: space-between;
-
-    padding: 11px 0;
-
-    border-bottom: 1px solid #292d35;
-}
-
-
-.label {
-
-    color: #8b8f98;
-}
-
-
-.process {
-
-    display: grid;
-
-    grid-template-columns:
-        1fr 80px 80px;
-
-    padding: 10px 0;
-
-    border-bottom: 1px solid #292d35;
-}
-
-
-.process-header {
-
-    color: #8b8f98;
-
-    font-size: 12px;
-
-    text-transform: uppercase;
-}
-
-
-.power-cost {
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(3, 1fr);
-
-    gap: 12px;
-
-    margin-top: 14px;
-}
-
-
-.cost {
-
-    background: #111318;
-
-    border-radius: 10px;
-
-    padding: 14px;
-}
-
-
-.cost-label {
-
-    color: #8b8f98;
-
-    font-size: 12px;
-}
-
-
-.cost-value {
-
-    font-size: 21px;
-
-    margin-top: 5px;
-}
-
-
-@media(max-width: 600px) {
-
-    .power-cost {
-
-        grid-template-columns: 1fr;
-    }
-
-}
-
-</style>
-
-<style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+/* ==========================================================
+   THEME TOKENS
+   ========================================================== */
 
 :root {
-    --dashboard-bg: #f5f7f4;
-    --dashboard-sidebar: #eaf0eb;
-    --dashboard-surface: rgba(255, 255, 255, .88);
-    --dashboard-border: #d6e1d8;
-    --dashboard-text: #1e2a22;
-    --dashboard-muted: #64746a;
-    --dashboard-muted-2: #829087;
-    --dashboard-accent: #2e8b57;
-    --dashboard-accent-soft: #dff0e3;
-    --dashboard-shadow: 0 10px 30px rgba(40, 75, 52, .1);
-    --dashboard-forest: url("https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=2200&q=85");
-    --dashboard-forest-light: url("https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=2200&q=85");
-}
+    --bg: #fbfbfd;
+    --surface: rgba(255,255,255,.72);
+    --surface-solid: #ffffff;
+    --surface-hover: rgba(255,255,255,.92);
+    --border: rgba(15,23,42,.08);
+    --border-strong: rgba(15,23,42,.16);
 
-html {
-    min-height: 100%;
-    background: var(--dashboard-bg);
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-}
+    --text: #0b1020;
+    --text-muted: #5b6478;
+    --text-faint: #949cb1;
 
-* {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-}
+    --accent: #4f46e5;
+    --accent-2: #06b6d4;
+    --accent-soft: rgba(79,70,229,.1);
+    --accent-glow: rgba(79,70,229,.25);
 
-*::-webkit-scrollbar {
-    display: none;
-    width: 0;
-    height: 0;
-}
+    --green: #059669;
+    --green-soft: rgba(5,150,105,.1);
+    --red: #dc2626;
+    --red-soft: rgba(220,38,38,.1);
+    --amber: #d97706;
+    --amber-soft: rgba(217,119,6,.12);
 
-body {
-    min-height: 100%;
-    background:
-        linear-gradient(rgba(245, 247, 244, .84), rgba(245, 247, 244, .91)),
-        var(--dashboard-forest-light) center / cover fixed,
-        var(--dashboard-bg);
-    color: var(--dashboard-text);
-    font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+    --shadow-sm: 0 1px 2px rgba(15,23,42,.04), 0 1px 3px rgba(15,23,42,.03);
+    --shadow-md: 0 6px 20px -4px rgba(15,23,42,.08), 0 2px 6px -2px rgba(15,23,42,.05);
+    --shadow-lg: 0 24px 48px -12px rgba(15,23,42,.14), 0 8px 20px -8px rgba(15,23,42,.08);
+
+    --blob-1: rgba(99,102,241,.55);
+    --blob-2: rgba(34,211,238,.42);
+    --blob-3: rgba(236,72,153,.32);
+    --blob-4: rgba(168,85,247,.4);
+
+    --grain-opacity: .018;
+    --blob-blur: 100px;
+
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+
+    --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
+
+    color-scheme: light;
 }
 
 body.dark {
-    --dashboard-bg: #0d1711;
-    --dashboard-surface: rgba(15, 27, 19, .86);
-    --dashboard-border: rgba(167, 219, 180, .24);
-    --dashboard-text: #edf7ef;
-    --dashboard-muted: #b0c5b5;
-    --dashboard-muted-2: #8da995;
-    --dashboard-accent: #a8e5bd;
-    --dashboard-accent-soft: rgba(44, 93, 60, .75);
-    --dashboard-shadow: 0 14px 36px rgba(0, 0, 0, .3);
-    background:
-        linear-gradient(rgba(5, 15, 8, .58), rgba(5, 15, 8, .72)),
-        var(--dashboard-forest) center / cover fixed,
-        var(--dashboard-bg);
+    --bg: #06070b;
+    --surface: rgba(22,25,34,.55);
+    --surface-solid: #0e1017;
+    --surface-hover: rgba(32,36,48,.75);
+    --border: rgba(255,255,255,.07);
+    --border-strong: rgba(255,255,255,.14);
+
+    --text: #f4f6fb;
+    --text-muted: #8b94ad;
+    --text-faint: #5a6278;
+
+    --accent: #8b8dfc;
+    --accent-2: #4fe3f5;
+    --accent-soft: rgba(139,141,252,.14);
+    --accent-glow: rgba(139,141,252,.4);
+
+    --green: #34d399;
+    --green-soft: rgba(52,211,153,.14);
+    --red: #f87171;
+    --red-soft: rgba(248,113,113,.14);
+    --amber: #fbbf24;
+    --amber-soft: rgba(251,191,36,.14);
+
+    --shadow-sm: 0 1px 2px rgba(0,0,0,.4);
+    --shadow-md: 0 6px 24px -4px rgba(0,0,0,.5);
+    --shadow-lg: 0 24px 56px -12px rgba(0,0,0,.6);
+
+    --blob-1: rgba(99,102,241,.45);
+    --blob-2: rgba(34,211,238,.32);
+    --blob-3: rgba(236,72,153,.25);
+    --blob-4: rgba(168,85,247,.38);
+
+    --grain-opacity: .035;
+
+    color-scheme: dark;
 }
+
+/* ==========================================================
+   RESET
+   ========================================================== */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scrollbar-width: none;
+}
+
+html::-webkit-scrollbar { display: none; }
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: var(--font-sans);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.55;
+    overflow-x: hidden;
+    transition: background .35s ease, color .35s ease;
+}
+
+/* ==========================================================
+   AMBIENT BACKGROUND
+   ========================================================== */
+
+.aurora {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+    transition: opacity .35s ease;
+}
+
+.blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(var(--blob-blur));
+    will-change: transform;
+    opacity: 1;
+    transition: background .35s ease;
+}
+
+.blob-1 {
+    width: 520px; height: 520px;
+    top: -180px; left: -140px;
+    background: var(--blob-1);
+    animation: drift-1 22s ease-in-out infinite;
+}
+
+.blob-2 {
+    width: 460px; height: 460px;
+    top: -120px; right: -120px;
+    background: var(--blob-2);
+    animation: drift-2 26s ease-in-out infinite;
+}
+
+.blob-3 {
+    width: 520px; height: 520px;
+    bottom: -220px; left: 30%;
+    background: var(--blob-3);
+    animation: drift-3 30s ease-in-out infinite;
+}
+
+.blob-4 {
+    width: 380px; height: 380px;
+    bottom: -80px; right: -60px;
+    background: var(--blob-4);
+    animation: drift-4 24s ease-in-out infinite;
+}
+
+@keyframes drift-1 {
+    0%, 100% { transform: translate(0,0) scale(1); }
+    50%      { transform: translate(60px,80px) scale(1.12); }
+}
+
+@keyframes drift-2 {
+    0%, 100% { transform: translate(0,0) scale(1); }
+    50%      { transform: translate(-80px,60px) scale(1.08); }
+}
+
+@keyframes drift-3 {
+    0%, 100% { transform: translate(0,0) scale(1); }
+    50%      { transform: translate(50px,-70px) scale(1.15); }
+}
+
+@keyframes drift-4 {
+    0%, 100% { transform: translate(0,0) scale(1); }
+    50%      { transform: translate(-50px,-40px) scale(1.1); }
+}
+
+.grain {
+    position: fixed;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    opacity: var(--grain-opacity);
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    mix-blend-mode: overlay;
+}
+
+/* ==========================================================
+   LAYOUT
+   ========================================================== */
 
 .container {
-    max-width: 1120px;
-    padding: 42px 30px 58px;
+    position: relative;
+    z-index: 1;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 40px 28px 80px;
 }
 
+/* ==========================================================
+   HEADER
+   ========================================================== */
+
 header {
-    align-items: flex-end;
-    margin-bottom: 34px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.brand-mark {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #fff;
+    box-shadow:
+        0 8px 24px -6px var(--accent-glow),
+        inset 0 1px 0 rgba(255,255,255,.3);
+    flex-shrink: 0;
+}
+
+.brand-mark svg {
+    width: 20px;
+    height: 20px;
 }
 
 h1 {
     margin: 0;
-    color: var(--dashboard-text);
-    font-family: "Space Grotesk", sans-serif;
-    font-size: 32px;
+    font-size: 22px;
     font-weight: 600;
-    letter-spacing: -.04em;
-}
-
-.subtitle,
-.label,
-.unit,
-.cost-label {
-    color: var(--dashboard-muted);
+    letter-spacing: -.025em;
+    line-height: 1.15;
 }
 
 .subtitle {
-    margin-top: 7px;
+    color: var(--text-muted);
     font-size: 13px;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
 }
 
-.status {
-    color: var(--dashboard-accent);
-    font-size: 13px;
-    font-weight: 600;
+.subtitle .sep {
+    opacity: .4;
 }
 
 .header-actions {
+    display: flex;
+    align-items: center;
     gap: 10px;
     flex-wrap: wrap;
     justify-content: flex-end;
 }
 
-.service-button {
-    padding: 10px 14px;
-    border: 1px solid #a9cdb0;
-    border-radius: 10px;
-    background: var(--dashboard-accent-soft);
-    color: #285536;
-    font-size: 13px;
-    font-weight: 600;
-    transition: background .18s, border-color .18s, transform .18s;
-}
-
-.service-button:hover {
-    border-color: #82b88e;
-    background: #cfe8d4;
-    transform: translateY(-1px);
-}
+/* ---- Theme toggle ---- */
 
 .theme-toggle {
     width: 38px;
@@ -409,532 +311,1159 @@ h1 {
     display: inline-grid;
     place-items: center;
     padding: 0;
-    border: 1px solid #a9cdb0;
-    border-radius: 10px;
-    background: var(--dashboard-accent-soft);
-    color: #285536;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    color: var(--text-muted);
     cursor: pointer;
-    font-size: 18px;
-    transition: background .18s, border-color .18s, transform .18s;
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    box-shadow: var(--shadow-sm);
+    transition: background .2s, border-color .2s, color .2s, transform .2s, box-shadow .2s;
+    flex-shrink: 0;
 }
 
 .theme-toggle:hover {
-    border-color: #82b88e;
-    background: #cfe8d4;
+    background: var(--surface-hover);
+    border-color: var(--border-strong);
+    color: var(--text);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.theme-toggle svg {
+    width: 17px;
+    height: 17px;
+    transition: transform .4s cubic-bezier(.34,1.56,.64,1);
+}
+
+.theme-toggle:hover svg {
+    transform: rotate(20deg);
+}
+
+.ico-sun  { display: none; }
+.ico-moon { display: block; }
+body.dark .ico-sun  { display: block; }
+body.dark .ico-moon { display: none; }
+
+/* ---- Live pill ---- */
+
+.status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 13px 7px 11px;
+    border-radius: 999px;
+    background: var(--green-soft);
+    color: var(--green);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .01em;
+    white-space: nowrap;
+    border: 1px solid transparent;
+}
+
+body.dark .status {
+    border-color: rgba(52,211,153,.18);
+}
+
+.pulse {
+    position: relative;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+}
+
+.pulse::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: currentColor;
+    animation: pulse 2.4s cubic-bezier(.4,0,.6,1) infinite;
+}
+
+@keyframes pulse {
+    0%   { transform: scale(1);   opacity: .7; }
+    80%  { transform: scale(2.6); opacity: 0; }
+    100% { transform: scale(2.6); opacity: 0; }
+}
+
+/* ==========================================================
+   SERVICES GRID
+   ========================================================== */
+
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+}
+
+.service-card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    text-decoration: none;
+    color: var(--text);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    transition:
+        background .25s ease,
+        border-color .25s ease,
+        box-shadow .3s ease,
+        transform .3s cubic-bezier(.2,.8,.3,1);
+}
+
+/* Colored radial glow on hover */
+.service-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(
+        circle at top right,
+        var(--service-color, var(--accent)),
+        transparent 65%
+    );
+    opacity: 0;
+    transition: opacity .35s ease;
+    pointer-events: none;
+}
+
+/* Inner rim highlight */
+.service-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(140deg, rgba(255,255,255,.28), rgba(255,255,255,0) 40%);
+    -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    pointer-events: none;
+    opacity: .7;
+}
+
+body.dark .service-card::after {
+    background: linear-gradient(140deg, rgba(255,255,255,.14), rgba(255,255,255,0) 45%);
+}
+
+.service-card:hover {
+    border-color: var(--border-strong);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+}
+
+.service-card:hover::before {
+    opacity: .12;
+}
+
+.service-card:active {
     transform: translateY(-1px);
 }
 
-.dot {
-    width: 8px;
-    height: 8px;
-    background: #3aa463;
-    box-shadow: 0 0 0 4px rgba(58, 164, 99, .12);
+/* Icon tile */
+
+.service-icon {
+    position: relative;
+    z-index: 1;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    color: #fff;
+    background: var(--service-color, var(--accent));
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.32),
+        0 6px 16px -4px var(--service-glow, var(--accent-glow));
 }
 
-.grid {
+.service-icon svg {
+    width: 22px;
+    height: 22px;
+}
+
+/* Info block */
+
+.service-info {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    min-width: 0;
+}
+
+.service-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.service-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 3px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Arrow */
+
+.service-arrow {
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    color: var(--text-faint);
+    transition: transform .25s ease, color .25s ease;
+}
+
+.service-card:hover .service-arrow {
+    color: var(--service-color, var(--accent));
+    transform: translate(2px, -2px);
+}
+
+/* ---- Brand colors per service ---- */
+
+.svc-nextcloud {
+    --service-color: #0082c9;
+    --service-glow: rgba(0,130,201,.45);
+}
+
+.svc-ai {
+    --service-color: #a855f7;
+    --service-glow: rgba(168,85,247,.45);
+}
+
+.svc-jellyfin {
+    --service-color: #7b5cff;
+    --service-glow: rgba(123,92,255,.45);
+}
+
+.svc-music {
+    --service-color: #10b981;
+    --service-glow: rgba(16,185,129,.45);
+}
+
+/* ==========================================================
+   BENTO GRID
+   ========================================================== */
+
+.bento {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
     gap: 14px;
+    margin-bottom: 14px;
 }
 
 .card {
-    border: 1px solid var(--dashboard-border);
-    border-radius: 14px;
-    background: var(--dashboard-surface);
-    box-shadow: var(--dashboard-shadow);
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    padding: 22px;
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    transition:
+        background .25s ease,
+        border-color .25s ease,
+        box-shadow .3s ease,
+        transform .3s cubic-bezier(.2,.8,.3,1);
 }
 
-.grid > .card {
-    min-height: 138px;
+.card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(140deg, rgba(255,255,255,.28), rgba(255,255,255,0) 40%);
+    -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    pointer-events: none;
+    opacity: .7;
 }
 
-.card-title,
-.process-header {
-    color: var(--dashboard-muted-2);
+body.dark .card::before {
+    background: linear-gradient(140deg, rgba(255,255,255,.14), rgba(255,255,255,0) 45%);
+}
+
+.card:hover {
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.card-label {
+    color: var(--text-faint);
     font-size: 11px;
-    font-weight: 700;
+    font-weight: 600;
+    text-transform: uppercase;
     letter-spacing: .1em;
 }
 
-.value {
-    color: var(--dashboard-text);
-    font-family: "Space Grotesk", sans-serif;
-    font-size: 30px;
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 9px;
+    font-size: 11px;
     font-weight: 600;
-    letter-spacing: -.03em;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    letter-spacing: .02em;
+    font-family: var(--font-mono);
 }
 
-.section {
-    margin-top: 28px;
+/* ---------- Hero card ---------- */
+
+.hero {
+    grid-column: span 6;
+    grid-row: span 2;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 26px;
+    background: linear-gradient(150deg,
+        var(--surface) 0%,
+        var(--surface) 60%,
+        var(--accent-soft) 140%);
 }
 
-.section-title {
-    margin-bottom: 12px;
-    color: var(--dashboard-text);
-    font-family: "Space Grotesk", sans-serif;
-    font-size: 18px;
+.hero-body {
+    display: flex;
+    align-items: center;
+    gap: 26px;
+    flex: 1;
+    min-height: 0;
+}
+
+.ring-wrap {
+    position: relative;
+    width: 168px;
+    height: 168px;
+    flex-shrink: 0;
+}
+
+.ring {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+    overflow: visible;
+}
+
+.ring-track {
+    fill: none;
+    stroke: var(--border);
+    stroke-width: 9;
+}
+
+body.dark .ring-track {
+    stroke: rgba(255,255,255,.06);
+}
+
+.ring-fill {
+    fill: none;
+    stroke: url(#ringGrad);
+    stroke-width: 9;
+    stroke-linecap: round;
+    transition: stroke-dashoffset .9s cubic-bezier(.4,0,.2,1);
+    filter: drop-shadow(0 0 12px var(--accent-glow));
+}
+
+.ring-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+}
+
+.ring-value {
+    font-family: var(--font-mono);
+    font-size: 40px;
+    font-weight: 700;
+    letter-spacing: -.04em;
+    line-height: 1;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.ring-unit {
+    font-size: 12px;
     font-weight: 600;
-    letter-spacing: -.02em;
+    color: var(--text-faint);
+    letter-spacing: .08em;
+    text-transform: uppercase;
 }
 
-.row,
-.process {
-    border-bottom-color: var(--dashboard-border);
-    font-size: 14px;
-}
-
-.row:last-child,
-.process:last-child {
-    border-bottom: 0;
-}
-
-.power-cost {
+.hero-meta {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
     gap: 10px;
 }
 
-.cost {
-    border: 1px solid #e0e9e1;
-    background: #f0f5f1;
-}
-
-body.dark .service-button,
-body.dark .theme-toggle {
-    border-color: rgba(168, 229, 189, .35);
-    background: rgba(24, 54, 34, .82);
-    color: #d9f5df;
-}
-
-body.dark .service-button:hover,
-body.dark .theme-toggle:hover {
-    border-color: rgba(168, 229, 189, .65);
-    background: rgba(39, 82, 51, .9);
-}
-
-body.dark .card {
-    background: var(--dashboard-surface);
-}
-
-body.dark .cost {
-    border-color: rgba(167, 219, 180, .18);
-    background: rgba(10, 25, 14, .72);
-}
-
-.cost-value {
-    color: var(--dashboard-text);
-    font-family: "Space Grotesk", sans-serif;
-    font-size: 22px;
+.hero-meta .meta-label {
+    font-size: 11px;
     font-weight: 600;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: .1em;
 }
 
-#disk-temperatures,
-#process-list {
-    color: var(--dashboard-text);
+.spark {
+    width: 100%;
+    height: 56px;
+    color: var(--accent);
+    position: relative;
 }
 
-@media(max-width: 760px) {
-    .container {
-        padding: 28px 18px 42px;
-    }
+.spark svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    overflow: visible;
+}
+
+/* ---------- Metric mini cards ---------- */
+
+.metric {
+    grid-column: span 3;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 20px;
+    min-height: 138px;
+}
+
+.metric-value {
+    font-family: var(--font-mono);
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -.03em;
+    color: var(--text);
+    line-height: 1.1;
+}
+
+.metric-value .unit {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-left: 2px;
+    letter-spacing: 0;
+}
+
+.metric-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: auto;
+    font-family: var(--font-mono);
+    font-weight: 500;
+}
+
+.bar {
+    height: 5px;
+    border-radius: 999px;
+    background: var(--border);
+    overflow: hidden;
+    position: relative;
+}
+
+.bar-fill {
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    width: 0%;
+    transition: width .9s cubic-bezier(.4,0,.2,1);
+    box-shadow: 0 0 12px var(--accent-glow);
+}
+
+/* ---------- Section ---------- */
+
+.section {
+    margin-top: 32px;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 14px;
+    letter-spacing: -.01em;
+}
+
+.section-title::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    box-shadow: 0 0 10px var(--accent-glow);
+}
+
+.section-title .count {
+    margin-left: auto;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+}
+
+/* ---------- Rows ---------- */
+
+.row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+}
+
+.row:last-child { border-bottom: 0; padding-bottom: 0; }
+.row:first-child { padding-top: 0; }
+
+.label {
+    color: var(--text-muted);
+    font-weight: 400;
+    font-size: 13px;
+}
+
+.row .value-cell {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 13px;
+    color: var(--text);
+}
+
+/* ---------- Two column ---------- */
+
+.two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 14px;
+}
+
+/* ---------- Electricity ---------- */
+
+.power-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-top: 4px;
+}
+
+.power-item {
+    position: relative;
+    padding: 16px 16px 14px;
+    border-radius: var(--radius-md);
+    background: var(--surface-solid);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    transition: border-color .2s, transform .2s;
+}
+
+body.dark .power-item {
+    background: rgba(255,255,255,.025);
+}
+
+.power-item:hover {
+    border-color: var(--border-strong);
+    transform: translateY(-1px);
+}
+
+.power-item .cost-label {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: .1em;
+}
+
+.power-item .cost-value {
+    font-family: var(--font-mono);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    margin-top: 6px;
+    letter-spacing: -.02em;
+}
+
+.power-item .cost-value .cur {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-right: 1px;
+}
+
+/* ---------- Process list ---------- */
+
+.process {
+    display: grid;
+    grid-template-columns: 1fr 78px 78px;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13.5px;
+    align-items: center;
+    transition: background .15s;
+}
+
+.process:last-child { border-bottom: 0; padding-bottom: 0; }
+
+.process-header {
+    padding-bottom: 12px;
+    color: var(--text-faint);
+    font-size: 10.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    font-family: var(--font-sans);
+}
+
+.process-name {
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.process-pid {
+    font-size: 11px;
+    color: var(--text-faint);
+    font-family: var(--font-mono);
+    display: block;
+    margin-top: 1px;
+}
+
+.process-cpu,
+.process-ram {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text);
+    text-align: right;
+}
+
+.process-cpu { color: var(--accent); }
+
+body.dark .process-cpu { color: var(--accent-2); }
+
+/* ---------- Status ---------- */
+
+.status-online {
+    color: var(--green);
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.status-offline {
+    color: var(--red);
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.status-warn {
+    color: var(--amber);
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.empty {
+    color: var(--text-faint);
+    font-size: 13px;
+    padding: 8px 0;
+}
+
+/* ==========================================================
+   RESPONSIVE
+   ========================================================== */
+
+@media (max-width: 1024px) {
+    .hero { grid-column: span 12; grid-row: span 1; }
+    .metric { grid-column: span 6; }
+}
+
+@media (max-width: 760px) {
+    .container { padding: 24px 16px 60px; }
 
     header {
-        align-items: flex-start;
         flex-direction: column;
-        gap: 22px;
+        align-items: stretch;
+        gap: 18px;
     }
 
     .header-actions {
         width: 100%;
         justify-content: flex-start;
     }
+
+    .services-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-body {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .ring-wrap { width: 140px; height: 140px; }
+    .ring-value { font-size: 34px; }
+
+    .metric { grid-column: span 12; min-height: auto; }
+
+    .two-col { grid-template-columns: 1fr; }
+
+    .power-grid { grid-template-columns: repeat(2, 1fr); }
+
+    .process { grid-template-columns: 1fr 60px 60px; font-size: 13px; }
+    .process-header { font-size: 10px; }
 }
+
+@media (max-width: 420px) {
+    .power-grid { grid-template-columns: 1fr; }
+    h1 { font-size: 19px; }
+}
+
+/* ==========================================================
+   ACCESSIBILITY
+   ========================================================== */
+
+:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+}
+
+button:focus:not(:focus-visible) { outline: none; }
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+    }
+}
+
 </style>
 
 </head>
 
-
 <body class="dark">
 
+<!-- ==========================================================
+     AMBIENT BACKGROUND
+     ========================================================== -->
+
+<div class="aurora" aria-hidden="true">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <div class="blob blob-4"></div>
+</div>
+
+<div class="grain" aria-hidden="true"></div>
+
+<!-- ==========================================================
+     CONTENT
+     ========================================================== -->
 
 <div class="container">
 
-
 <header>
 
-<div>
+    <div class="brand">
 
-<h1>🖥️ Noel Server</h1>
+        <div class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="12" rx="2"/>
+                <path d="M8 20h8M12 16v4"/>
+                <path d="M7 10l2.5 2.5L14 8l3 3"/>
+            </svg>
+        </div>
 
-<div class="subtitle">
-    Local server dashboard
-</div>
+        <div>
+            <h1>Noel Server</h1>
+            <div class="subtitle">
+                <span>Local server dashboard</span>
+                <span class="sep">·</span>
+                <span>Updated <span id="last-updated">--</span></span>
+            </div>
+        </div>
 
-<div class="subtitle">
-    Last update ·
-    <span id="last-updated">--</span>
-</div>
+    </div>
 
-</div>
+    <div class="header-actions">
 
+        <button
+            id="theme-toggle"
+            class="theme-toggle"
+            type="button"
+            title="Toggle theme"
+            aria-label="Toggle theme"
+        >
+            <svg class="ico-sun" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="4"/>
+                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+            </svg>
+            <svg class="ico-moon" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+        </button>
 
-<div class="header-actions">
+        <div class="status">
+            <span class="pulse"></span>
+            <span id="server-status">Online</span>
+        </div>
 
-    <button
-        id="theme-toggle"
-        class="theme-toggle"
-        type="button"
-        title="Switch to dark mode"
-        aria-label="Switch to dark mode"
-    >
-        ☾
-    </button>
+    </div>
 
-    <a
-        class="service-button"
-        href="https://noel-server.perch-altair.ts.net/"
-        target="_blank"
-        rel="noopener noreferrer"
-    >
-        ☁️ Nextcloud
-    </a>
+</header>
 
-    <a
-        class="service-button"
-        href="http://noel-server:8081/"
-        target="_blank"
-        rel="noopener noreferrer"
-    >
-        🧠 AI Mind Chat
-    </a>
+<!-- ==========================================================
+     SERVICES
+     ========================================================== -->
 
-    <div class="status">
-        <span class="dot"></span>
+<div class="section" style="margin-top: 0;">
 
-        <span id="server-status">
-            Online
-        </span>
+    <div class="section-title">
+        Services
+        <span class="count" id="services-count">4 running</span>
+    </div>
+
+    <div class="services-grid">
+
+        <!-- ==================================================
+             Nextcloud — cloud storage
+             ================================================== -->
+        <a
+            class="service-card svc-nextcloud"
+            href="https://noel-server.perch-altair.ts.net/"
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+            <div class="service-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>
+                </svg>
+            </div>
+
+            <div class="service-info">
+                <div class="service-name">Nextcloud</div>
+                <div class="service-desc">Files · sync · sharing</div>
+            </div>
+
+            <svg class="service-arrow" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <path d="M7 17L17 7M9 7h8v8"/>
+            </svg>
+        </a>
+
+        <!-- ==================================================
+             AI Mind Chat — LLM chat interface
+             ================================================== -->
+        <a
+            class="service-card svc-ai"
+            href="http://noel-server:8081/"
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+            <div class="service-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2a5 5 0 0 0-5 5v1a4 4 0 0 0 0 8v1a3 3 0 0 0 6 0V7a5 5 0 0 0-1-5z"/>
+                    <path d="M12 2a5 5 0 0 1 5 5v1a4 4 0 0 1 0 8v1a3 3 0 0 1-6 0"/>
+                </svg>
+            </div>
+
+            <div class="service-info">
+                <div class="service-name">AI Mind Chat</div>
+                <div class="service-desc">Local LLM assistant</div>
+            </div>
+
+            <svg class="service-arrow" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <path d="M7 17L17 7M9 7h8v8"/>
+            </svg>
+        </a>
+
+        <!-- ==================================================
+             Jellyfin — media server
+             Replace href with your Jellyfin URL
+             ================================================== -->
+        <a
+            class="service-card svc-jellyfin"
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+            <div class="service-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2l9 5v10l-9 5-9-5V7l9-5z"/>
+                    <path d="M10 9l5 3-5 3V9z" fill="currentColor" stroke="none"/>
+                </svg>
+            </div>
+
+            <div class="service-info">
+                <div class="service-name">Jellyfin</div>
+                <div class="service-desc">Media streaming</div>
+            </div>
+
+            <svg class="service-arrow" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <path d="M7 17L17 7M9 7h8v8"/>
+            </svg>
+        </a>
+
+        <!-- ==================================================
+             Music Manager
+             Replace href with your Music Manager URL
+             ================================================== -->
+        <a
+            class="service-card svc-music"
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+            <div class="service-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 18V5l12-2v13"/>
+                    <circle cx="6" cy="18" r="3"/>
+                    <circle cx="18" cy="16" r="3"/>
+                </svg>
+            </div>
+
+            <div class="service-info">
+                <div class="service-name">Music Manager</div>
+                <div class="service-desc">Library · playlists · tags</div>
+            </div>
+
+            <svg class="service-arrow" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <path d="M7 17L17 7M9 7h8v8"/>
+            </svg>
+        </a>
+
     </div>
 
 </div>
 
-</header>
-
-
-<!-- SYSTEM -->
-
-<div class="grid">
-
-
-<div class="card">
-
-<div class="card-title">
-CPU
-</div>
-
-<div class="value">
-
-<span id="cpu">
---
-</span>
-
-<span class="unit">
-%
-</span>
-
-</div>
-
-</div>
-
-
-<div class="card">
-
-<div class="card-title">
-Memory
-</div>
-
-<div class="value">
-
-<span id="memory">
---
-</span>
-
-<span class="unit">
-%
-</span>
-
-</div>
-
-<div class="subtitle"
-     id="memory-details">
---
-</div>
-
-</div>
-
-
-<div class="card">
-
-<div class="card-title">
-Disk
-</div>
-
-<div class="value">
-
-<span id="disk">
---
-</span>
-
-<span class="unit">
-%
-</span>
-
-</div>
-
-<div class="subtitle"
-     id="disk-details">
---
-</div>
-
-</div>
-
-
-<div class="card">
-
-<div class="card-title">
-Server uptime
-</div>
-
-<div class="value">
-
-<span id="uptime">
---
-</span>
-
-</div>
-
-</div>
-
-
-</div>
-
-
-<!-- POWER -->
+<!-- ==========================================================
+     BENTO — SYSTEM METRICS
+     ========================================================== -->
 
 <div class="section">
+<div class="bento">
 
-<div class="section-title">
-⚡ Electricity
-</div>
+    <!-- HERO: CPU ring + sparkline -->
+    <div class="card hero">
 
+        <div class="card-head">
+            <span class="card-label">CPU utilization</span>
+            <span class="chip">LIVE</span>
+        </div>
 
-<div class="card">
+        <div class="hero-body">
 
+            <div class="ring-wrap">
 
-<div class="grid">
+                <svg class="ring" viewBox="0 0 120 120" aria-hidden="true">
+                    <defs>
+                        <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%"   stop-color="#a78bfa"/>
+                            <stop offset="50%"  stop-color="#6366f1"/>
+                            <stop offset="100%" stop-color="#22d3ee"/>
+                        </linearGradient>
+                    </defs>
+                    <circle cx="60" cy="60" r="52" class="ring-track"/>
+                    <circle cx="60" cy="60" r="52" class="ring-fill" id="cpu-ring"/>
+                </svg>
 
+                <div class="ring-center">
+                    <span class="ring-value" id="cpu">--</span>
+                    <span class="ring-unit">percent</span>
+                </div>
 
-<div>
+            </div>
 
-<div class="card-title">
-Current power
-</div>
+            <div class="hero-meta">
+                <span class="meta-label">Last 30 samples</span>
+                <div class="spark" id="cpu-spark"></div>
+            </div>
 
-<div class="value">
+        </div>
 
-<span id="watts">
---
-</span>
+    </div>
 
-<span class="unit">
-W
-</span>
+    <!-- MEMORY -->
+    <div class="card metric">
 
-</div>
+        <div class="card-head">
+            <span class="card-label">Memory</span>
+        </div>
 
-</div>
+        <div class="metric-value">
+            <span id="memory">--</span><span class="unit">%</span>
+        </div>
 
+        <div class="bar">
+            <div class="bar-fill" id="memory-bar"></div>
+        </div>
 
-<div>
+        <div class="metric-sub" id="memory-details">--</div>
 
-<div class="card-title">
-Electricity price
-</div>
+    </div>
 
-<div class="value">
+    <!-- DISK -->
+    <div class="card metric">
 
-€<span id="price">
---
-</span>
+        <div class="card-head">
+            <span class="card-label">Disk</span>
+        </div>
 
-<span class="unit">
-/ kWh
-</span>
+        <div class="metric-value">
+            <span id="disk">--</span><span class="unit">%</span>
+        </div>
 
-</div>
+        <div class="bar">
+            <div class="bar-fill" id="disk-bar"></div>
+        </div>
 
-</div>
+        <div class="metric-sub" id="disk-details">--</div>
 
+    </div>
 
-</div>
+    <!-- UPTIME -->
+    <div class="card metric">
 
+        <div class="card-head">
+            <span class="card-label">Uptime</span>
+        </div>
 
-<div class="power-cost">
+        <div class="metric-value" id="uptime">--</div>
 
+        <div class="metric-sub">since boot</div>
 
-<div class="cost">
+    </div>
 
-<div class="cost-label">
-PER HOUR
-</div>
+    <!-- POWER -->
+    <div class="card metric">
 
-<div class="cost-value">
-€<span id="cost-hour">--</span>
-</div>
+        <div class="card-head">
+            <span class="card-label">Power draw</span>
+            <span class="chip" id="price-chip">--</span>
+        </div>
 
-</div>
+        <div class="metric-value">
+            <span id="watts">--</span><span class="unit">W</span>
+        </div>
 
+        <div class="metric-sub">€<span id="cost-day">--</span> / day</div>
 
-<div class="cost">
-
-<div class="cost-label">
-PER DAY
-</div>
-
-<div class="cost-value">
-€<span id="cost-day">--</span>
-</div>
-
-</div>
-
-
-<div class="cost">
-
-<div class="cost-label">
-PER MONTH
-</div>
-
-<div class="cost-value">
-€<span id="cost-month">--</span>
-</div>
-
-</div>
-
-
-</div>
-
-
-</div>
-
-</div>
-
-
-<!-- TAILSCALE -->
-
-<div class="section">
-
-<div class="section-title">
-🔗 Tailscale
-</div>
-
-
-<div class="card">
-
-
-<div class="row">
-
-<span class="label">
-Status
-</span>
-
-<span id="tailscale-status">
---
-</span>
+    </div>
 
 </div>
-
-
-<div class="row">
-
-<span class="label">
-Hostname
-</span>
-
-<span id="tailscale-hostname">
---
-</span>
-
 </div>
 
-
-<div class="row">
-
-<span class="label">
-Tailscale IP
-</span>
-
-<span id="tailscale-ip">
---
-</span>
-
-</div>
-
-
-</div>
-
-</div>
-
-<!-- AI MIND -->
+<!-- ==========================================================
+     ELECTRICITY BREAKDOWN
+     ========================================================== -->
 
 <div class="section">
 
     <div class="section-title">
-        🧠 AI Mind
+        Electricity
+        <span class="count">€<span id="price">--</span> / kWh</span>
     </div>
 
     <div class="card">
 
-        <div class="row">
+        <div class="power-grid">
 
-            <span class="label">
-                Status
-            </span>
+            <div class="power-item">
+                <div class="cost-label">Per hour</div>
+                <div class="cost-value"><span class="cur">€</span><span id="cost-hour">--</span></div>
+            </div>
 
-            <span id="ai-status">
-                Checking...
-            </span>
+            <div class="power-item">
+                <div class="cost-label">Per day</div>
+                <div class="cost-value"><span class="cur">€</span><span id="cost-day-full">--</span></div>
+            </div>
 
-        </div>
+            <div class="power-item">
+                <div class="cost-label">Per month</div>
+                <div class="cost-value"><span class="cur">€</span><span id="cost-month">--</span></div>
+            </div>
 
-        <div class="row">
-
-            <span class="label">
-                Requests
-            </span>
-
-            <span id="ai-requests">
-                --
-            </span>
-
-        </div>
-
-        <div class="row">
-
-            <span class="label">
-                Available again
-            </span>
-
-            <span id="ai-reset">
-                --
-            </span>
-
-        </div>
-
-        <div class="row">
-
-            <span class="label">
-                Last checked
-            </span>
-
-            <span id="ai-last-checked">
-                --
-            </span>
+            <div class="power-item">
+                <div class="cost-label">Per year</div>
+                <div class="cost-value"><span class="cur">€</span><span id="cost-year">--</span></div>
+            </div>
 
         </div>
 
@@ -942,461 +1471,447 @@ Tailscale IP
 
 </div>
 
-<!-- DISK -->
+<!-- ==========================================================
+     TAILSCALE + AI MIND
+     ========================================================== -->
+
+<div class="two-col">
+
+    <div class="card">
+
+        <div class="card-head">
+            <span class="card-label">Tailscale</span>
+        </div>
+
+        <div class="row">
+            <span class="label">Status</span>
+            <span class="value-cell" id="tailscale-status">--</span>
+        </div>
+
+        <div class="row">
+            <span class="label">Hostname</span>
+            <span class="value-cell" id="tailscale-hostname">--</span>
+        </div>
+
+        <div class="row">
+            <span class="label">Tailscale IP</span>
+            <span class="value-cell" id="tailscale-ip">--</span>
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <div class="card-head">
+            <span class="card-label">AI Mind</span>
+        </div>
+
+        <div class="row">
+            <span class="label">Status</span>
+            <span class="value-cell" id="ai-status">Checking…</span>
+        </div>
+
+        <div class="row">
+            <span class="label">Requests</span>
+            <span class="value-cell" id="ai-requests">--</span>
+        </div>
+
+        <div class="row">
+            <span class="label">Available again</span>
+            <span class="value-cell" id="ai-reset">--</span>
+        </div>
+
+        <div class="row">
+            <span class="label">Last checked</span>
+            <span class="value-cell" id="ai-last-checked">--</span>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ==========================================================
+     DISK TEMPERATURE
+     ========================================================== -->
 
 <div class="section">
 
-<div class="section-title">
-🌡️ Disk temperature
-</div>
+    <div class="section-title">Disk temperature</div>
 
-
-<div class="card">
-
-<div id="disk-temperatures">
-Loading...
-</div>
+    <div class="card">
+        <div id="disk-temperatures">
+            <div class="empty">Loading…</div>
+        </div>
+    </div>
 
 </div>
 
-</div>
-
-
-<!-- PROCESSES -->
+<!-- ==========================================================
+     TOP PROCESSES
+     ========================================================== -->
 
 <div class="section">
 
-<div class="section-title">
-⚙️ Top processes
-</div>
+    <div class="section-title">
+        Top processes
+        <span class="count" id="process-count">--</span>
+    </div>
 
+    <div class="card">
 
-<div class="card">
+        <div class="process process-header">
+            <div>Process</div>
+            <div style="text-align:right">CPU</div>
+            <div style="text-align:right">RAM</div>
+        </div>
 
+        <div id="process-list">
+            <div class="empty">Loading…</div>
+        </div>
 
-<div class="process process-header">
-
-<div>
-PROCESS
-</div>
-
-<div>
-CPU
-</div>
-
-<div>
-RAM
-</div>
+    </div>
 
 </div>
 
-
-<div id="process-list">
-
-Loading...
-
-</div>
-
-
-</div>
-
-</div>
-
-
-<!-- SYSTEM INFORMATION -->
+<!-- ==========================================================
+     SYSTEM INFORMATION
+     ========================================================== -->
 
 <div class="section">
 
-<div class="section-title">
-System information
-</div>
+    <div class="section-title">System information</div>
 
+    <div class="card">
 
-<div class="card">
+        <div class="row">
+            <span class="label">Hostname</span>
+            <span class="value-cell" id="hostname">--</span>
+        </div>
 
+        <div class="row">
+            <span class="label">Operating system</span>
+            <span class="value-cell" id="os">--</span>
+        </div>
 
-<div class="row">
+        <div class="row">
+            <span class="label">Boot time</span>
+            <span class="value-cell" id="boot-time">--</span>
+        </div>
 
-<span class="label">
-Hostname
-</span>
-
-<span id="hostname">
---
-</span>
-
-</div>
-
-
-<div class="row">
-
-<span class="label">
-Operating system
-</span>
-
-<span id="os">
---
-</span>
-
-</div>
-
-
-<div class="row">
-
-<span class="label">
-Boot time
-</span>
-
-<span id="boot-time">
---
-</span>
-
-</div>
-
+    </div>
 
 </div>
 
 </div>
 
-
-</div>
-
+<!-- ==========================================================
+     SCRIPT
+     ========================================================== -->
 
 <script>
 
-const savedTheme = localStorage.getItem("dashboard-theme") || "dark";
+/* ==========================================================
+   THEME
+   ========================================================== */
+
 const themeToggle = document.getElementById("theme-toggle");
+const savedTheme = localStorage.getItem("dashboard-theme") || "dark";
 
 document.body.classList.toggle("dark", savedTheme === "dark");
-
-function updateThemeToggle() {
-    const dark = document.body.classList.contains("dark");
-    themeToggle.textContent = dark ? "☀" : "☾";
-    themeToggle.title = dark ? "Switch to light mode" : "Switch to dark mode";
-    themeToggle.setAttribute("aria-label", themeToggle.title);
-}
 
 themeToggle.addEventListener("click", () => {
     const dark = !document.body.classList.contains("dark");
     document.body.classList.toggle("dark", dark);
     localStorage.setItem("dashboard-theme", dark ? "dark" : "light");
-    updateThemeToggle();
 });
 
-updateThemeToggle();
+/* ==========================================================
+   HISTORY BUFFER + SPARKLINES
+   ========================================================== */
 
+const MAX_POINTS = 30;
+const history = { cpu: [], memory: [], disk: [] };
+
+function pushHistory(key, value) {
+    const arr = history[key];
+    arr.push(value);
+    if (arr.length > MAX_POINTS) arr.shift();
+}
+
+function renderSpark(key, containerId) {
+    const values = history[key];
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    if (values.length < 2) {
+        container.innerHTML = "";
+        return;
+    }
+
+    const w = 200, h = 56;
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const range = max - min || 1;
+
+    const step = w / (values.length - 1);
+    const pts = values.map((v, i) => [
+        i * step,
+        h - ((v - min) / range) * (h - 10) - 5
+    ]);
+
+    const line = pts
+        .map((p, i) => (i ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1))
+        .join(" ");
+
+    const area = line + ` L ${w} ${h} L 0 ${h} Z`;
+
+    container.innerHTML = `
+        <svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
+            <defs>
+                <linearGradient id="spark-${key}" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%"   stop-color="currentColor" stop-opacity=".35"/>
+                    <stop offset="100%" stop-color="currentColor" stop-opacity="0"/>
+                </linearGradient>
+            </defs>
+            <path d="${area}" fill="url(#spark-${key})"/>
+            <path d="${line}" fill="none" stroke="currentColor"
+                  stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>`;
+}
+
+/* ==========================================================
+   ANIMATED NUMBER TWEEN
+   ========================================================== */
+
+function animateValue(el, target, decimals = 0, duration = 700) {
+    if (!el) return;
+    const start = parseFloat(el.textContent);
+    const from = Number.isFinite(start) ? start : 0;
+    const to = Number(target);
+    if (!Number.isFinite(to)) { el.textContent = target; return; }
+
+    const t0 = performance.now();
+    function tick(now) {
+        const t = Math.min((now - t0) / duration, 1);
+        const eased = 1 - Math.pow(1 - t, 3);
+        el.textContent = (from + (to - from) * eased).toFixed(decimals);
+        if (t < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+}
+
+/* ==========================================================
+   RING (CPU)
+   ========================================================== */
+
+const RING_R = 52;
+const RING_C = 2 * Math.PI * RING_R;
+const cpuRing = document.getElementById("cpu-ring");
+
+if (cpuRing) {
+    cpuRing.style.strokeDasharray = RING_C;
+    cpuRing.style.strokeDashoffset = RING_C;
+}
+
+function setRing(pct) {
+    if (!cpuRing) return;
+    const clamped = Math.max(0, Math.min(100, pct));
+    cpuRing.style.strokeDashoffset = RING_C * (1 - clamped / 100);
+}
+
+/* ==========================================================
+   DASHBOARD UPDATE
+   ========================================================== */
 
 async function updateDashboard() {
 
     try {
 
-        const response =
-            await fetch("/api/system");
+        const response = await fetch("/api/system");
+        const data = await response.json();
 
-        const data =
-            await response.json();
-
-
-        // LAST UPDATED
+        /* ---------- LAST UPDATED ---------- */
 
         if (data.last_updated) {
-
-            const updated =
-                new Date(data.last_updated);
-
-            document.getElementById(
-                "last-updated"
-            ).textContent =
-                updated.toLocaleString();
-
+            const updated = new Date(data.last_updated);
+            document.getElementById("last-updated").textContent =
+                updated.toLocaleTimeString();
         }
 
-
-        // SYSTEM
-
-        const system =
-            data.system;
-
-
-        document.getElementById("cpu")
-            .textContent =
-                system.cpu;
-
-
-        document.getElementById("memory")
-            .textContent =
-                system.memory;
-
-
-        document.getElementById("memory-details")
-            .textContent =
-                `${system.memory_used_gb} GB / ` +
-                `${system.memory_total_gb} GB`;
-
-
-        document.getElementById("disk")
-            .textContent =
-                system.disk;
-
-
-        document.getElementById("disk-details")
-            .textContent =
-                `${system.disk_used_gb} GB / ` +
-                `${system.disk_total_gb} GB`;
-
-
-        document.getElementById("uptime")
-            .textContent =
-                system.uptime;
-
-
-        document.getElementById("hostname")
-            .textContent =
-                system.hostname;
-
-
-        document.getElementById("os")
-            .textContent =
-                system.os;
-
-
-        document.getElementById("boot-time")
-            .textContent =
-                system.boot_time;
-
-
-        // POWER
-
-        const power =
-            data.power;
-
-
-        document.getElementById("watts")
-            .textContent =
-                power.watts;
-
-
-        document.getElementById("price")
-            .textContent =
-                power.price_per_kwh.toFixed(3);
-
-
-        document.getElementById("cost-hour")
-            .textContent =
-                power.cost_hour.toFixed(4);
-
-
-        document.getElementById("cost-day")
-            .textContent =
-                power.cost_day.toFixed(2);
-
-
-        document.getElementById("cost-month")
-            .textContent =
-                power.cost_month.toFixed(2);
-
-
-        // TAILSCALE
-
-        const tailscale =
-            data.tailscale;
-
-
-        document.getElementById("tailscale-status")
-            .textContent =
-                tailscale.online
-                    ? "🟢 Online"
-                    : "🔴 " + tailscale.status;
-
-
-        document.getElementById("tailscale-hostname")
-            .textContent =
-                tailscale.hostname || "--";
-
-
-        document.getElementById("tailscale-ip")
-            .textContent =
-                tailscale.tailscale_ip || "--";
-
-// AI MIND
-
-const ai = data.ai || {};
-
-const aiStatus =
-    document.getElementById("ai-status");
-
-const aiRequests =
-    document.getElementById("ai-requests");
-
-const aiReset =
-    document.getElementById("ai-reset");
-
-const aiLastChecked =
-    document.getElementById("ai-last-checked");
-
-
-if (ai.available) {
-
-    aiStatus.textContent = "🟢 Available";
-
-} else {
-
-    aiStatus.textContent = "🔴 " + (
-        ai.status || "Unavailable"
-    );
-
-}
-
-
-if (
-    ai.limit !== null &&
-    ai.remaining !== null
-) {
-
-    aiRequests.textContent =
-        `${ai.remaining} / ${ai.limit}`;
-
-} else {
-
-    aiRequests.textContent = "--";
-
-}
-
-
-if (!ai.available && ai.reset_at) {
-
-    const remainingSeconds =
-        Math.max(
-            0,
-            Math.floor(
-                ai.reset_at - Date.now() / 1000
-            )
-        );
-
-    const hours =
-        Math.floor(remainingSeconds / 3600);
-
-    const minutes =
-        Math.floor(
-            (remainingSeconds % 3600) / 60
-        );
-
-    const seconds =
-        remainingSeconds % 60;
-
-    if (remainingSeconds > 0) {
-
-        aiReset.textContent =
-            `${hours}h ${minutes}m ${seconds}s`;
-
-    } else {
-
-        aiReset.textContent = "--";
-
-    }
-
-} else {
-
-    aiReset.textContent = "--";
-
-}
-
-aiLastChecked.textContent =
-    new Date().toLocaleTimeString();
-
-
-        // DISK TEMPERATURE
-
-        const diskContainer =
-            document.getElementById(
-                "disk-temperatures"
-            );
-
-
-        if (data.disks.length === 0) {
-
-            diskContainer.textContent =
-                "Temperature data unavailable";
-
+        /* ---------- SYSTEM ---------- */
+
+        const system = data.system;
+
+        animateValue(document.getElementById("cpu"), system.cpu, 0);
+        setRing(system.cpu);
+        pushHistory("cpu", Number(system.cpu));
+        renderSpark("cpu", "cpu-spark");
+
+        animateValue(document.getElementById("memory"), system.memory, 0);
+        pushHistory("memory", Number(system.memory));
+        const memBar = document.getElementById("memory-bar");
+        if (memBar) memBar.style.width = system.memory + "%";
+        document.getElementById("memory-details").textContent =
+            `${system.memory_used_gb} / ${system.memory_total_gb} GB`;
+
+        animateValue(document.getElementById("disk"), system.disk, 0);
+        pushHistory("disk", Number(system.disk));
+        const diskBar = document.getElementById("disk-bar");
+        if (diskBar) diskBar.style.width = system.disk + "%";
+        document.getElementById("disk-details").textContent =
+            `${system.disk_used_gb} / ${system.disk_total_gb} GB`;
+
+        document.getElementById("uptime").textContent = system.uptime;
+        document.getElementById("hostname").textContent = system.hostname;
+        document.getElementById("os").textContent = system.os;
+        document.getElementById("boot-time").textContent = system.boot_time;
+
+        /* ---------- POWER ---------- */
+
+        const power = data.power;
+
+        animateValue(document.getElementById("watts"), power.watts, 0);
+        document.getElementById("price").textContent =
+            power.price_per_kwh.toFixed(3);
+        document.getElementById("price-chip").textContent =
+            "€" + power.price_per_kwh.toFixed(2);
+        document.getElementById("cost-hour").textContent =
+            power.cost_hour.toFixed(4);
+        document.getElementById("cost-day").textContent =
+            power.cost_day.toFixed(2);
+        document.getElementById("cost-day-full").textContent =
+            power.cost_day.toFixed(2);
+        document.getElementById("cost-month").textContent =
+            power.cost_month.toFixed(2);
+
+        const yearEl = document.getElementById("cost-year");
+        if (yearEl) {
+            yearEl.textContent = (
+                (power.cost_year !== undefined)
+                    ? power.cost_year
+                    : power.cost_month * 12
+            ).toFixed(2);
+        }
+
+        /* ---------- TAILSCALE ---------- */
+
+        const ts = data.tailscale;
+        const tsStatus = document.getElementById("tailscale-status");
+        tsStatus.textContent = ts.online ? "● Online" : "● " + ts.status;
+        tsStatus.className = "value-cell " +
+            (ts.online ? "status-online" : "status-offline");
+
+        document.getElementById("tailscale-hostname").textContent =
+            ts.hostname || "--";
+        document.getElementById("tailscale-ip").textContent =
+            ts.tailscale_ip || "--";
+
+        /* ---------- AI MIND ---------- */
+
+        const ai = data.ai || {};
+
+        const aiStatus = document.getElementById("ai-status");
+        const aiRequests = document.getElementById("ai-requests");
+        const aiReset = document.getElementById("ai-reset");
+        const aiChecked = document.getElementById("ai-last-checked");
+
+        if (ai.available) {
+            aiStatus.textContent = "● Available";
+            aiStatus.className = "value-cell status-online";
         } else {
-
-            diskContainer.innerHTML =
-                data.disks.map(
-                    disk =>
-
-                        `<div class="row">
-
-                            <span class="label">
-                                Disk
-                            </span>
-
-                            <span>
-                                ${disk.temperature} °C
-                            </span>
-
-                        </div>`
-
-                ).join("");
-
+            aiStatus.textContent = "● " + (ai.status || "Unavailable");
+            aiStatus.className = "value-cell status-offline";
         }
 
+        if (ai.limit !== null && ai.remaining !== null) {
+            aiRequests.textContent = `${ai.remaining} / ${ai.limit}`;
+        } else {
+            aiRequests.textContent = "--";
+        }
 
-        // PROCESSES
-
-        const processContainer =
-            document.getElementById(
-                "process-list"
+        if (!ai.available && ai.reset_at) {
+            const remaining = Math.max(
+                0,
+                Math.floor(ai.reset_at - Date.now() / 1000)
             );
+            if (remaining > 0) {
+                const h = Math.floor(remaining / 3600);
+                const m = Math.floor((remaining % 3600) / 60);
+                const s = remaining % 60;
+                aiReset.textContent = `${h}h ${m}m ${s}s`;
+            } else {
+                aiReset.textContent = "--";
+            }
+        } else {
+            aiReset.textContent = "--";
+        }
 
+        aiChecked.textContent = new Date().toLocaleTimeString();
 
-        processContainer.innerHTML =
-            data.processes.map(
-                process =>
+        /* ---------- DISK TEMPERATURES ---------- */
 
-                    `<div class="process">
+        const diskContainer = document.getElementById("disk-temperatures");
 
-                        <div>
+        if (!data.disks || data.disks.length === 0) {
+            diskContainer.innerHTML =
+                `<div class="empty">Temperature data unavailable</div>`;
+        } else {
+            diskContainer.innerHTML = data.disks
+                .map((disk, i) => {
+                    const temp = (disk.temperature !== null &&
+                                  disk.temperature !== undefined)
+                        ? `${disk.temperature} °C`
+                        : "n/a";
+                    const name = disk.name || `Physical Disk ${i + 1}`;
+                    return `
+                        <div class="row">
+                            <span class="label">${name}</span>
+                            <span class="value-cell">${temp}</span>
+                        </div>`;
+                })
+                .join("");
+        }
 
-                            ${process.name}
+        /* ---------- PROCESSES ---------- */
 
-                            <span class="subtitle">
-                                PID ${process.pid}
-                            </span>
+        const processContainer = document.getElementById("process-list");
+        const processCount = document.getElementById("process-count");
 
-                        </div>
+        if (processCount) {
+            const total = (data.process_stats && data.process_stats.count)
+                ? data.process_stats.count
+                : data.processes.length;
+            processCount.textContent = total + " running";
+        }
 
-                        <div>
-                            ${process.cpu}%
-                        </div>
-
-                        <div>
-                            ${process.memory}%
-                        </div>
-
-                    </div>`
-
-            ).join("");
-
+        processContainer.innerHTML = data.processes
+            .map(p => `
+                <div class="process">
+                    <div>
+                        <div class="process-name">${p.name}</div>
+                        <span class="process-pid">PID ${p.pid}</span>
+                    </div>
+                    <div class="process-cpu">${p.cpu}%</div>
+                    <div class="process-ram">${p.memory}%</div>
+                </div>`)
+            .join("");
 
     } catch (error) {
-
-        console.error(
-            "Dashboard error:",
-            error
-        );
-
+        console.error("Dashboard error:", error);
     }
 
 }
 
-
-// Initial update
+/* ==========================================================
+   INIT
+   ========================================================== */
 
 updateDashboard();
 
+/* refresh every 5 seconds */
+setInterval(updateDashboard, 5000);
 
 </script>
-
 
 </body>
 
